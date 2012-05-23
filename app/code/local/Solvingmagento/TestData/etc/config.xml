@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <modules>
+        <Solvingmagento_TestData>
+            <version>0.1.1</version>
+        </Solvingmagento_TestData>
+    </modules>
+    <global>
+        <helpers>
+            <solvingmagento_testdata>
+                <class>Solvingmagento_TestData_Helper</class>
+            </solvingmagento_testdata>
+        </helpers>
+        <models>
+            <solvingmagento_testdata>
+                <class>Solvingmagento_TestData_Model</class>
+                <resourceModel>solvingmagento_testdata_resource</resourceModel>
+            </solvingmagento_testdata>
+        </models>
+        <resources>
+            <solvingmagento_testdata_setup>
+                <setup>
+                    <module>Solvingmagento_TestData</module>
+                    <class>Solvingmagento_TestData_Model_Resource_Setup</class>
+                </setup>
+            </solvingmagento_testdata_setup>
+        </resources>
+    </global>
+</config>

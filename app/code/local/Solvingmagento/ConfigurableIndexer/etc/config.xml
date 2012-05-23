@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <modules>
+        <Solvingmagento_ConfigurableIndexer>
+            <version>0.1.0</version>
+        </Solvingmagento_ConfigurableIndexer>
+    </modules>
+    <global>
+        <helpers>
+            <solvingmagento_configurableindexer>
+                <class>Solvingmagento_ConfigurableIndexer_Helper</class>
+            </solvingmagento_configurableindexer>
+        </helpers>
+        <resources>
+            <solvingmagento_configurableindexer_setup>
+                <setup>
+                    <module>Solvingmagento_ConfigurableIndexer</module>
+                    <class>Mage_Catalog_Model_Resource_Setup</class>
+                </setup>
+            </solvingmagento_configurableindexer_setup>
+        </resources>
+    </global>
+</config>
