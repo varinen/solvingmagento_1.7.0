@@ -29,7 +29,7 @@ $data = array (
 
     'form'  => 'round,square,oval,sphere,brick',
 
-    'type' => 'Chronograph,Amulet,Pin,Wristband,Wrist,Brosh,Clipster,Cocktail ring,Drangon hanger,'.
+    'junk_type' => 'Chronograph,Amulet,Pin,Wristband,Wrist,Brosh,Clipster,Cocktail ring,Drangon hanger,'.
         'Gem hanger, Erotic hanger,Regular junk, Glittered junk,Crystall junk,Stainless steel junk,'.
         'Weird junk,Exotic junk,Star shaped junk,Beaded junk,Junk with beads,Junk without beads,',
         'Lucky junk,Ivory junk,Mother of pearl junk,Pearl junk,Junk with pearls,Chain junk',
@@ -41,9 +41,9 @@ $data = array (
 
     'case_form' => 'round,square,oval,sphere,brick',
 
-    'glas_cover' => 'Rock chrystal,Saphire glass,Plastic',
+    'glass_cover' => 'Rock chrystal,Saphire glass,Plastic',
 
-    'mechanichs' => 'Radio,Solar,Quartz,Manually wound,Automatically wound,Hybrid',
+    'mechanics' => 'Radio,Solar,Quartz,Manually wound,Automatically wound,Hybrid',
 
     'parts' => 'Analog,Digital,Analog/Digital',
 
