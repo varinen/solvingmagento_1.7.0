@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <modules>
+        <Solvingmagento_Attributes>
+            <version>0.1.0</version>
+        </Solvingmagento_Attributes>
+    </modules>
+    <global>
+        <helpers>
+            <solvingmagento_attributes>
+                <class>Solvingmagento_Attributes_Helper</class>
+            </solvingmagento_attributes>
+        </helpers>
+        <resources>
+            <solvingmagento_attributes_setup>
+                <setup>
+                    <module>Solvingmagento_Attributes</module>
+                    <class>Mage_Eav_Model_Entity_Setup</class>
+                </setup>
+            </solvingmagento_attributes_setup>
+        </resources>
+    </global>
+</config>
