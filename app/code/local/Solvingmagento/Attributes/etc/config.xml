@@ -15,7 +15,7 @@
             <solvingmagento_attributes_setup>
                 <setup>
                     <module>Solvingmagento_Attributes</module>
-                    <class>Solvingamegnto_Attributes_Model_Resource_Setup</class>
+                    <class>Solvingmagento_Attributes_Model_Resource_Setup</class>
                 </setup>
             </solvingmagento_attributes_setup>
         </resources>
