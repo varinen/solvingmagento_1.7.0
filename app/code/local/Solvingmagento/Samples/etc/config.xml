@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <modules>
+        <Solvingmagento_Samples>
+            <version>0.1.0</version>
+        </Solvingmagento_Samples>
+    </modules>
+    <global>
+        <helpers>
+            <samples>
+                <class>Solvingmagento_Samples_Helper</class>
+            </samples>
+        </helpers>
+        <resources>
+            <solvingmagento_samples_setup>
+                <setup>
+                    <module>Solvingmagento_Samples</module>
+                    <class>Mage_Catalog_Model_Resource_Setup</class>
+                </setup>
+            </solvingmagento_samples_setup>
+        </resources>
+    </global>
+</config>
