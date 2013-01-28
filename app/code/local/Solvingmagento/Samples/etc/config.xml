@@ -20,4 +20,16 @@
             </solvingmagento_samples_setup>
         </resources>
     </global>
+    <frontend>
+        <events>
+            <sales_order_place_after>
+                <observers>
+                    <solvingmagento_samples>
+                        <class>solvingmagento/observer</class>
+                        <method>initByRequest</method>
+                    </solvingmagento_samples>
+                </observers>
+            </sales_order_place_after>
+        </events>
+    </frontend>
 </config>
