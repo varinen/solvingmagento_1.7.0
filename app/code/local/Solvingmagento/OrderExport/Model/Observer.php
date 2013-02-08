@@ -1,20 +1,29 @@
 <?php
 /**
- * Solvingmagento
- *
- * NOTICE OF LICENSE
- *
- * This source file is subject to the Open Software License (OSL 3.0)
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://opensource.org/licenses/osl-3.0.php
- *
- * @category  Solvingmagento
- * @package   Solvingmagento
- * @author    Oleg Ishenko <oleg.ishenko@solvingamegnto.com>
+ * Solvingmagento_OrderExport Observer class
+ * 
+ * PHP version 5.3
+ * 
+ * @category  Knm
+ * @package   Solvingmagento_OrderExport
+ * @author    Oleg Ishenko <oleg.ishenko@solvingmagento.com>
  * @copyright 2013 Oleg Ishenko
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
- * @link      http://www.solvingmagento.com
+ * @version   GIT: <0.1.0>
+ * @link      http://www.solvingmagento.com/
+ *
+ */
+
+/** Solvingmagento_OrderExport_Model_Observer
+ * 
+ * @category Knm
+ * @package  Solvingmagento_OrderExport
+ * 
+ * @author   Oleg Ishenko <oleg.ishenko@solvingmagento.com>
+ * @license  http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @version  Release: <package_version>
+ * @link     http://www.solvingmagento.com/
+ * 
  * 
  */
 
@@ -40,34 +49,47 @@ class Solvingmagento_OrderExport_Model_Observer
     }
     
     /**
-     * Sends a welcome email to the customer after he places his first order
+     * Sends an email to the admin after a customer places his first order
      * online
      * 
      * @param Varien_Event_Observer $observer observer object
      * 
      * @return boolean
      */
-    public function welcomeCustomer(Varien_Event_Observer $observer)
+    public function newCustomer(Varien_Event_Observer $observer)
     {
-        $order = $observer->getEvent()->getOrder();
+        $orderIds = $observer->getEvent()->getOrderIds();
         
-        if (!$order->getCustomerId()) {
-            //send welcome message only to registered customers
+        if (!is_array($orderIds) || (!array_key_exists(0, $orderIds))) {
             return;
         }
         
-        $customer = $order->getCustomer();
+        $order = Mage::getModel('sales/order')->load($orderIds[0]);
+        
+        if (!$order->getId()) {
+            return;
+        }
+        
+        if (!$order->getCustomerId()) {
+            //send a message only for registered customers
+            return;
+        }
+        
+        $customer = Mage::getModel('customer/customer')->load($order->getCustomerId());
+        
+        if (!$customer->getId()) {
+            return;
+        }
         
         $customerOrders = Mage::getModel('sales/order')
                 ->getCollection()
-                ->addAttributToFilter('customer_id', $customer->getId());
+                ->addAttributeToFilter('customer_id', $customer->getId());
         if (count($customerOrders) > 1) {
-            // send welcome message only after the first order
+            // send a message only after the first order
             return;
         }
         
-        return Mage::getModel('solvingmagento_orderexport/welcome')
-            ->welcomeCustomer($customer, $order);
-        
+        return Mage::getModel('solvingmagento_orderexport/customer')
+            ->newCustomer($customer, $order);        
     }
 }

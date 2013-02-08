@@ -1,21 +1,17 @@
 <?php
 /**
- * Solvingmagento
- *
- * NOTICE OF LICENSE
- *
- * This source file is subject to the Open Software License (OSL 3.0)
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://opensource.org/licenses/osl-3.0.php
- *
- * @category  Solvingmagento
- * @package   Solvingmagento
- * @author    Oleg Ishenko <oleg.ishenko@solvingamegnto.com>
+ * Solvingmagento_OrderExport install script
+ * 
+ * PHP version 5.3
+ * 
+ * @category  Knm
+ * @package   Solvingmagento_OrderExport
+ * @author    Oleg Ishenko <oleg.ishenko@solvingmagento.com>
  * @copyright 2013 Oleg Ishenko
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
- * @link      http://www.solvingmagento.com
- * 
+ * @version   GIT: <0.1.0>
+ * @link      http://www.solvingmagento.com/
+ *
  */
 
 
@@ -28,10 +24,10 @@ $installer->run(
     "INSERT INTO `{$this->getTable('core_email_template')}` 
     (`template_code`, `template_text`, `template_type`, `template_subject`)
     VALUES (
-        'Welcome New Customer',
-        'Hello {{customer.name}},<br><br>Welcome to our shop!',
+        'New Customer and First Order',
+        'A first order by a new customer: {{htmlescape var=\$customer.getName()}}, id: {{var=\$customer.getId()}}',
         '2',
-        'Welcome!'
+        'A first order by a new customer'
     )"
 );
 

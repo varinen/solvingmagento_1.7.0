@@ -1,23 +1,31 @@
 <?php
 /**
- * Solvingmagento
- *
- * NOTICE OF LICENSE
- *
- * This source file is subject to the Open Software License (OSL 3.0)
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://opensource.org/licenses/osl-3.0.php
- *
- * @category  Solvingmagento
- * @package   Solvingmagento
- * @author    Oleg Ishenko <oleg.ishenko@solvingamegnto.com>
+ * Solvingmagento_OrderExport Export class
+ * 
+ * PHP version 5.3
+ * 
+ * @category  Knm
+ * @package   Solvingmagento_OrderExport
+ * @author    Oleg Ishenko <oleg.ishenko@solvingmagento.com>
  * @copyright 2013 Oleg Ishenko
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
- * @link      http://www.solvingmagento.com
- * 
+ * @version   GIT: <0.1.0>
+ * @link      http://www.solvingmagento.com/
+ *
  */
 
+/** Solvingmagento_OrderExport_Model_Export
+ * 
+ * @category Knm
+ * @package  Solvingmagento_OrderExport
+ * 
+ * @author   Oleg Ishenko <oleg.ishenko@solvingmagento.com>
+ * @license  http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @version  Release: <package_version>
+ * @link     http://www.solvingmagento.com/
+ * 
+ * 
+ */
 class Solvingmagento_OrderExport_Model_Export
 {
     
@@ -44,7 +52,7 @@ class Solvingmagento_OrderExport_Model_Export
         array_walk_recursive($data, array ($xml, 'addChild'));
         
         file_put_contents(
-            $dirPath. DS .$order->getIncrementId().'xml', 
+            $dirPath. DS .$order->getIncrementId().'.xml', 
             $xml->asXML()
         );
         

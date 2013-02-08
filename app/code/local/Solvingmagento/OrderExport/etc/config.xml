@@ -26,20 +26,24 @@
         </resources>
         <events>
             <sales_order_place_after>
-                <solvingmagento_orderexport>
-                    <class>solvingmagento_orderexport/observer</class>
-                    <method>exportOrder</method>
-                </solvingmagento_orderexport>
+                <observers>
+                    <solvingmagento_orderexport>
+                        <class>solvingmagento_orderexport/observer</class>
+                        <method>exportOrder</method>
+                    </solvingmagento_orderexport>
+                </observers>
             </sales_order_place_after>
         </events>
     </global>
     <frontend>
         <events>
             <checkout_onepage_controller_success_action>
-                <solvingmagento_orderexport>
-                    <class>solvingmagento_orderexport/observer</class>
-                    <method>welcomeCustomer</method>
-                </solvingmagento_orderexport>
+                <observers>
+                    <solvingmagento_orderexport>
+                        <class>solvingmagento_orderexport/observer</class>
+                        <method>newCustomer</method>
+                    </solvingmagento_orderexport>
+                </observers>
             </checkout_onepage_controller_success_action>
         </events>
     </frontend>
