@@ -50,16 +50,15 @@ class Solvingmagento_ConfigurablePreSelect_Model_Observer
                     $productAttribute   = $attribute->getProductAttribute();
                     $productAttributeId = $productAttribute->getId();
                     $attributeValue     = $childProduct->getData($productAttribute->getAttributeCode());
-                    $candidates[$childProduct->getId()] = array($productAttributeId => $attributeValue);
+                    $candidates[$productAttributeId] =  $attributeValue;
 
                 }
+                break;
             }
         }
 
-        $candidate = array_shift(array_values($candidates));
-
         $preconfiguredValues = new Varien_Object();
-        $preconfiguredValues->setData('super_attribute', $candidate);
+        $preconfiguredValues->setData('super_attribute', $candidates);
         $product->setPreconfiguredValues($preconfiguredValues);
         $a = 1;
 
