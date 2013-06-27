@@ -60,7 +60,6 @@ class Solvingmagento_ConfigurablePreSelect_Model_Observer
         $preconfiguredValues = new Varien_Object();
         $preconfiguredValues->setData('super_attribute', $candidates);
         $product->setPreconfiguredValues($preconfiguredValues);
-        $a = 1;
 
         return true;
     }
