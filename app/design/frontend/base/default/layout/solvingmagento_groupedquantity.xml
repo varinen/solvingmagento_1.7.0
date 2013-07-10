@@ -1,0 +1,21 @@
+<!--
+/**
+* Solvingmagento_GroupedQuantity configuration
+*
+* @category Solvingmagento
+* @package Solvingmagento_GroupedQuantity
+* @author Oleg Ishenko <oleg.ishenko@solvingmagento.com>
+* @copyright 2013 Oleg Ishenko
+* @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+* @version GIT: <0.1.0>
+* @link http://www.solvingmagento.com/
+*
+*/
+-->
+<layout version="0.1.0">
+    <PRODUCT_TYPE_grouped>
+        <reference name="product.info.grouped">
+            <action method="setTemplate"><template>catalog/product/view/type/solvingmagento_grouped.phtml</template></action>
+        </reference>
+    </PRODUCT_TYPE_grouped>
+</layout>

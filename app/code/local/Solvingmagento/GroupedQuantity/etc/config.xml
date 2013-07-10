@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+* Solvingmagento_GroupedQuantity configuration
+*
+* @category Solvingmagento
+* @package Solvingmagento_GroupedQuantity
+* @author Oleg Ishenko <oleg.ishenko@solvingmagento.com>
+* @copyright 2013 Oleg Ishenko
+* @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+* @version GIT: <0.1.0>
+* @link http://www.solvingmagento.com/
+*
+*/
+-->
+<config>
+    <modules>
+        <Solvingmagento_GroupedQuantity>
+            <version>0.1.0</version>
+        </Solvingmagento_GroupedQuantity>
+    </modules>
+    <global>
+        <blocks>
+            <catalog>
+                <rewrite>
+                    <product_view_type_grouped>Solvingmagento_GroupedQuantity_Block_Product_View_Type_Grouped</product_view_type_grouped>
+                </rewrite>
+            </catalog>
+        </blocks>
+        <models>
+            <catalog>
+                <rewrite>
+                    <product_type_grouped>Solvingmagento_GroupedQuantity_Model_Product_Type_Grouped</product_type_grouped>
+                </rewrite>
+            </catalog>
+        </models>
+    </global>
+    <frontend>
+        <layout>
+            <updates>
+                <solvingmagento_groupedquantity>
+                    <file>solvingmagento_groupedquantity.xml</file>
+                </solvingmagento_groupedquantity>
+            </updates>
+        </layout>
+    </frontend>
+</config>
