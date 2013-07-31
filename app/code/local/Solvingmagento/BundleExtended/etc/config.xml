@@ -15,18 +15,12 @@
                 </rewrite>
             </bundle>
         </blocks>
-        <helpers>
-            <bundleextended>
-                <class>Solvingmagento_BundleExtended_Helper</class>
-            </bundleextended>
-        </helpers>
-        <resources>
-            <bundleextended_setup>
-                <setup>
-                    <module>Solvingmagento_BundleExtended_Helper</module>
-                    <class>Mage_Catalog_Model_Resource_Eav_Mysql4_Setup</class>
-                </setup>
-            </bundleextended_setup>
-        </resources>
+        <models>
+            <bundle>
+                <rewrite>
+                    <product_type>Solvingmagento_BundleExtended_Model_Product_Type</product_type>
+                </rewrite>
+            </bundle>
+        </models>
     </global>
 </config>
