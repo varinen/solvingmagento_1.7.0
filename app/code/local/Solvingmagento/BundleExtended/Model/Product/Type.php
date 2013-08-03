@@ -1,4 +1,31 @@
 <?php
+/**
+ * Solvingmagento_BundleExtended product type class override
+ *
+ * PHP version 5.3
+ *
+ * @category  Solvingmagento
+ * @package   Solvingmagento_BundleExtended
+ * @author    Magento Core Team <core@magentocommerce.com>
+ * @author    Oleg Ishenko <oleg.ishenko@solvingmagento.com>
+ * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @version   GIT: <0.1.0>
+ * @link      http://www.solvingmagento.com/
+ *
+ */
+
+/** Solvingmagento_BundleExtended_Model_Product_Type
+ *
+ * @category Solvingmagento
+ * @package  Solvingmagento_BundleExtended
+ *
+ * @author   Magento Core Team <core@magentocommerce.com>
+ * @author   Oleg Ishenko <oleg.ishenko@solvingmagento.com>
+ * @license  http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+ * @version  Release: <package_version>
+ * @link     http://www.solvingmagento.com/
+ */
+
 class Solvingmagento_BundleExtended_Model_Product_Type 
     extends Mage_Bundle_Model_Product_Type
 {
