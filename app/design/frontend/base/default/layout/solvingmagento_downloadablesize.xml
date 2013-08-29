@@ -1,0 +1,24 @@
+<!--
+/**
+* Solvingmagento_DownloadableSize configuration
+*
+* @category Solvingmagento
+* @package Solvingmagento_DownloadableSize
+* @author Oleg Ishenko <oleg.ishenko@solvingmagento.com>
+* @copyright 2013 Oleg Ishenko
+* @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+* @version GIT: <0.1.0>
+* @link http://www.solvingmagento.com/
+*
+*/
+-->
+<layout version="0.1.0">
+    <PRODUCT_TYPE_downloadable>
+        <reference name="product.info.downloadable.samples">
+            <action method="setTemplate"><template>solvingmagento/downloadablesize/samples.phtml</template></action>
+        </reference>
+        <reference name="product.info.downloadable.options">
+            <action method="setTemplate"><template>solvingmagento/downloadablesize/links.phtml</template></action>
+        </reference>
+    </PRODUCT_TYPE_downloadable>
+</layout>

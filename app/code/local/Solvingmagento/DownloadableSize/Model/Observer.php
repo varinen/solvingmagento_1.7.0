@@ -1,7 +1,39 @@
 <?php
+/**
+ * Solvingmagento_DownloadableSize observer class
+ *
+ * PHP version 5.3
+ *
+ * @category Solvingmagento
+ * @package Solvingmagento_DownloadableSize
+ * @author Oleg Ishenko <oleg.ishenko@solvingmagento.com>
+ * @copyright 2013 Oleg Ishenko
+ * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @version GIT: <0.1.0>
+ * @link http://www.solvingmagento.com/
+ *
+ */
+
+/** Solvingmagento_DownloadableSize_Model_Observer
+ *
+ * @category Solvingmagento
+ * @package Solvingmagento_DownloadableSize
+ *
+ * @author Oleg Ishenko <oleg.ishenko@solvingmagento.com>
+ * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @version Release: <package_version>
+ * @link http://www.solvingmagento.com/
+ */
 
 class Solvingmagento_DownloadableSize_Model_Observer
 {
+    /**
+     * Sets file size to link and sample files
+     *
+     * @param Varien_Event_Observer $observer observer object
+     *
+     * @return void
+     */
     public function saveFileSize(Varien_Event_Observer $observer)
     {
         $object = $observer->getEvent()->getObject();
@@ -9,30 +41,16 @@ class Solvingmagento_DownloadableSize_Model_Observer
             || ($object instanceof Mage_Downloadable_Model_Sample)
         ) {
 
-            if ($object->getType()) {
-                $this->getFileSize($object, 'link_type', 'link_file', 'link_url', 'filesize');
+            if ($object->getLinkType()) {
+                Mage::helper('solvingmagento_downloadablesize')
+                    ->setFileSize($object, 'link_type', 'link_file', 'link_url', 'filesize');
             }
 
             if ($object->getSampleType()) {
-                $this->getFileSize($object, 'sample_type', 'sample_file', 'sample_url', 'sample_filesize');
+                Mage::helper('solvingmagento_downloadablesize')
+                    ->setFileSize($object, 'sample_type', 'sample_file', 'sample_url', 'sample_filesize');
             }
         }
         return;
-    }
-
-    protected function getFileSize($object, $typeParam, $fileParam, $urlParam, $sizeParam)
-    {
-        $resourceType = $object->getData($typeParam);
-
-        if ($resourceType == Mage_Downloadable_Helper_Download::LINK_TYPE_FILE) {
-            $resource = Mage::helper('downloadable/file')->getFilePath(
-                Mage_Downloadable_Model_Link::getBasePath(), $object->getData($fileParam)
-            );
-        } elseif ($resourceType == Mage_Downloadable_Helper_Download::LINK_TYPE_URL) {
-            $resource = $object->getData($urlParam);
-        }
-        $filesize = Mage::helper('solvingmagento_downloadablesize')->getFileSize($resource, $resourceType);
-
-        $object->setData($sizeParam, $filesize);
     }
 }
