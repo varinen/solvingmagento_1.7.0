@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+* Solvingmagento_AffiliateProduct configuration
+*
+* @category Solvingmagento
+* @package Solvingmagento_AffiliateProduct
+* @author Oleg Ishenko <oleg.ishenko@solvingmagento.com>
+* @copyright 2013 Oleg Ishenko
+* @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+* @version GIT: <0.1.0>
+* @link http://www.solvingmagento.com/
+*
+*/
+-->
+<config>
+    <modules>
+        <Solvingmagento_AffiliateProduct>
+            <version>0.1.0</version>
+        </Solvingmagento_AffiliateProduct>
+    </modules>
+    <global>
+        <helpers>
+            <solvingmagento_affiliateproduct>
+                <class>Solvingmagento_AffiliateProduct_Helper</class>
+            </solvingmagento_affiliateproduct>
+        </helpers>
+        <models>
+            <solvingmagento_affiliateproduct>
+                <class>Solvingmagento_AffiliateProduct_Model</class>
+            </solvingmagento_affiliateproduct>
+        </models>
+        <resources>
+            <solvingmagento_affiliateproduct_setup>
+                <setup>
+                    <module>Solvingmagento_AffiliateProduct</module>
+                    <class>Mage_Catalog_Model_Resource_Setup</class>
+                </setup>
+            </solvingmagento_affiliateproduct_setup>
+        </resources>
+        <catalog>
+            <product>
+                <type>
+                    <affiliate translate="label" module="solvingmagento_affiliateproduct">
+                        <label>Affiliate Product</label>
+                        <model>solvingmagento_affiliateproduct/product_type</model>
+                        <is_qty>0</is_qty>
+                        <composite>0</composite>
+                        <can_use_qty_decimals>0</can_use_qty_decimals>
+                    </affiliate>
+                </type>
+            </product>
+        </catalog>
+    </global>
+</config>
