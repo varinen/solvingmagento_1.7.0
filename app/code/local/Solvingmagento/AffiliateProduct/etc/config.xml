@@ -52,4 +52,13 @@
             </product>
         </catalog>
     </global>
+    <frontend>
+        <layout>
+            <updates>
+                <affiliate module="Solvingmagento_AffiliateProduct">
+                    <file>affiliate.xml</file>
+                </affiliate>
+            </updates>
+        </layout>
+    </frontend>
 </config>
