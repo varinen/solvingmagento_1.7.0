@@ -1,0 +1,38 @@
+<?php
+/**
+* Solvingmagento_AffiliateProduct wishlist cart column template
+*
+* PHP version 5.3
+*
+* @category Solvingmagento
+* @package Solvingmagento_AffiliateProduct
+* @author Oleg Ishenko <oleg.ishenko@solvingmagento.com>
+* @copyright 2013 Oleg Ishenko
+* @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+* @version GIT: <0.1.0>
+* @link http://www.solvingmagento.com/
+*
+*/
+
+/* @var $this Mage_Wishlist_Block_Customer_Wishlist_Item_Column_Cart */
+/* @var Mage_Wishlist_Model_Item $item */
+$item        = $this->getItem();
+$product     = $item->getProduct();
+$buttonTitle = $this->__('Go to partner site');
+?>
+<div class="cart-cell">
+    <?php echo $this->getPriceHtml($product);?>
+    <div class="add-to-cart-alt">
+        <?php if ($product->isSaleable()): ?>
+            <button type="button" class="button btn-cart" onclick="javascript:window.location.href='http://google.com'; return false;">
+                <span><span><?php echo $buttonTitle ?></span></span>
+            </button>
+        <?php endif; ?>
+    </div>
+    <?php foreach($this->getSortedChildren() as $childName):?>
+        <?php echo $this->getChildHtml($childName, false);?>
+    <?php endforeach;?>
+    <?php if ($product->isVisibleInSiteVisibility()): ?>
+        <p><a class="link-edit" href="<?php echo $this->getItemConfigureUrl($item) ?>"><?php echo $this->__('Edit') ?></a></p>
+    <?php endif ?>
+</div>

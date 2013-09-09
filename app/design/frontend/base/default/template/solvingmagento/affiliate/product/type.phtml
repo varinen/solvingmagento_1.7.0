@@ -1,0 +1,20 @@
+<?php
+/**
+ * Solvingmagento_AffiliateProduct type data template
+ *
+ * PHP version 5.3
+ *
+ * @category Solvingmagento
+ * @package Solvingmagento_AffiliateProduct
+ * @author Oleg Ishenko <oleg.ishenko@solvingmagento.com>
+ * @copyright 2013 Oleg Ishenko
+ * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @version GIT: <0.1.0>
+ * @link http://www.solvingmagento.com/
+ *
+ */
+
+$_product = $this->getProduct();
+echo $this->getChildHtml('product_type_data_extra');
+echo $this->getPriceHtml($_product);
+?>

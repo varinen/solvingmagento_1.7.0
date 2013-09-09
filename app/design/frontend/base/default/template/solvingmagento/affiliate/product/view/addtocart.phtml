@@ -1,0 +1,26 @@
+<?php
+/**
+ * Solvingmagento_AffiliateProduct add to cart template
+ *
+ * PHP version 5.3
+ *
+ * @category Solvingmagento
+ * @package Solvingmagento_AffiliateProduct
+ * @author Oleg Ishenko <oleg.ishenko@solvingmagento.com>
+ * @copyright 2013 Oleg Ishenko
+ * @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+ * @version GIT: <0.1.0>
+ * @link http://www.solvingmagento.com/
+ *
+ */
+?>
+<?php $_product = $this->getProduct(); ?>
+<?php $buttonTitle = $this->__('Go to partner site'); ?>
+<?php if($_product->isSaleable()): ?>
+    <div class="add-to-cart">
+        <button type="button" class="button btn-cart" onclick="javascript:window.location.href='http://google.com'; return false;">
+            <span><span><?php echo $buttonTitle ?></span></span>
+        </button>
+        <?php echo $this->getChildHtml('', true, true) ?>
+    </div>
+<?php endif; ?>
