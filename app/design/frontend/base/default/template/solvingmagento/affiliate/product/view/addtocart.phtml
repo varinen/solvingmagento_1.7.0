@@ -18,7 +18,8 @@
 <?php $buttonTitle = $this->__('Go to partner site'); ?>
 <?php if($_product->isSaleable()): ?>
     <div class="add-to-cart">
-        <button type="button" class="button btn-cart" onclick="javascript:window.location.href='http://google.com'; return false;">
+        <button type="button" class="button btn-cart" onclick="javascript:window.location.href='<?php
+            echo Mage::helper('solvingmagento_affiliateproduct')->getRedirectUrl($_product);?>'; return false;">
             <span><span><?php echo $buttonTitle ?></span></span>
         </button>
         <?php echo $this->getChildHtml('', true, true) ?>

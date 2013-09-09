@@ -26,5 +26,8 @@
  */
 class Solvingmagento_AffiliateProduct_Helper_Data extends Mage_Core_Helper_Abstract
 {
-
+    public function getRedirectUrl(Mage_Catalog_Model_Product $product)
+    {
+        return Mage::getUrl('affiliate/redirect/product', array('id' => $product->getId()));
+    }
 }

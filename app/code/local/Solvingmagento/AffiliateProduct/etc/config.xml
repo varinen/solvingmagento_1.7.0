@@ -29,6 +29,11 @@
             <solvingmagento_affiliateproduct>
                 <class>Solvingmagento_AffiliateProduct_Helper</class>
             </solvingmagento_affiliateproduct>
+            <checkout>
+                <rewrite>
+                    <cart>Solvingmagento_AffiliateProduct_Helper_Cart</cart>
+                </rewrite>
+            </checkout>
         </helpers>
         <models>
             <solvingmagento_affiliateproduct>
@@ -71,9 +76,28 @@
         <layout>
             <updates>
                 <affiliate module="Solvingmagento_AffiliateProduct">
-                    <file>affiliate.xml</file>
+                    <file>solvingmagento/affiliate.xml</file>
                 </affiliate>
             </updates>
         </layout>
+        <routers>
+            <affiliate>
+                <use>standard</use>
+                <args>
+                    <module>Solvingmagento_AffiliateProduct</module>
+                    <frontName>affiliate</frontName>
+                </args>
+            </affiliate>
+        </routers>
+        <secure_url>
+            <affiliate_redirect>/affiliate/redirect/</affiliate_redirect>
+        </secure_url>
     </frontend>
+    <default>
+        <catalog>
+            <affiliate>
+                <authentication>1</authentication>
+            </affiliate>
+        </catalog>
+    </default>
 </config>

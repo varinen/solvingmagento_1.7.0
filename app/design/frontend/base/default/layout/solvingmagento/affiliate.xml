@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!--
+/**
+* Solvingmagento_AffiliateProduct front-end layout updates
+*
+* @category Solvingmagento
+* @package Solvingmagento_AffiliateProduct
+* @author Oleg Ishenko <oleg.ishenko@solvingmagento.com>
+* @copyright 2013 Oleg Ishenko
+* @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+* @version GIT: <0.1.0>
+* @link http://www.solvingmagento.com/
+*
+*/
+-->
+<layout version="0.1.0">
+    <default>
+        <reference name="wishlist_sidebar">
+            <action method="setTemplate"><template>solvingmagento/affiliate/wishlist/sidebar.phtml</template></action>
+        </reference>
+    </default>
+    <PRODUCT_TYPE_affiliate translate="label" module="solvingmagento_affiliateproduct">
+        <label>Catalog Product View (Affiliate)</label>
+        <reference name="product.info">
+            <block type="solvingmagento_affiliateproduct/catalog_product_view_type" name="product.info.affiliate" as="product_type_data" template="solvingmagento/affiliate/product/type.phtml">
+            </block>
+        </reference>
+        <reference name="product.info.addtocart">
+            <action method="setTemplate"><template>solvingmagento/affiliate/product/view/addtocart.phtml</template></action>
+        </reference>
+    </PRODUCT_TYPE_affiliate>
+</layout>
