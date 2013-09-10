@@ -34,6 +34,11 @@
                     <cart>Solvingmagento_AffiliateProduct_Helper_Cart</cart>
                 </rewrite>
             </checkout>
+            <catalog>
+                <rewrite>
+                    <product_compare>Solvingmagento_AffiliateProduct_Helper_Compare</product_compare>
+                </rewrite>
+            </catalog>
         </helpers>
         <models>
             <solvingmagento_affiliateproduct>
