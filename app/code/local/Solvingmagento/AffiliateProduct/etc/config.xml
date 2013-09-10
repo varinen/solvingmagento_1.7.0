@@ -66,16 +66,6 @@
                 </type>
             </product>
         </catalog>
-        <events>
-            <core_block_abstract_to_html_before>
-                <observers>
-                    <solvingmagento_affiliateproduct>
-                        <class>Solvingmagento_AffiliateProduct_Model_Observer</class>
-                        <method>setTemplate</method>
-                    </solvingmagento_affiliateproduct>
-                </observers>
-            </core_block_abstract_to_html_before>
-        </events>
     </global>
     <frontend>
         <layout>

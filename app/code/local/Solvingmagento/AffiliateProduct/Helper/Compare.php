@@ -28,7 +28,7 @@
 class Solvingmagento_AffiliateProduct_Helper_Compare extends Mage_Catalog_Helper_Product_Compare
 {
     /**
-     * Retrive add to cart url
+     * Retrieve add to cart url
      *
      * @param Mage_Catalog_Model_Product $product
      * @return string
@@ -47,5 +47,4 @@ class Solvingmagento_AffiliateProduct_Helper_Compare extends Mage_Catalog_Helper
 
         return $this->_getUrl('checkout/cart/add', $params);
     }
-
 }

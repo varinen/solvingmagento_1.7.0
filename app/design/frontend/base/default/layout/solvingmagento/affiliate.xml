@@ -19,6 +19,11 @@
             <action method="setTemplate"><template>solvingmagento/affiliate/wishlist/sidebar.phtml</template></action>
         </reference>
     </default>
+    <wishlist_index_index>
+        <reference name="customer.wishlist.item.cart">
+            <action method="setTemplate"><template>solvingmagento/affiliate/wishlist/item/column/cart.phtml</template></action>
+        </reference>
+    </wishlist_index_index>
     <PRODUCT_TYPE_affiliate translate="label" module="solvingmagento_affiliateproduct">
         <label>Catalog Product View (Affiliate)</label>
         <reference name="product.info">
@@ -29,4 +34,5 @@
             <action method="setTemplate"><template>solvingmagento/affiliate/product/view/addtocart.phtml</template></action>
         </reference>
     </PRODUCT_TYPE_affiliate>
+
 </layout>

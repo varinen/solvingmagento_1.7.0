@@ -98,7 +98,7 @@ class Solvingmagento_AffiliateProduct_RedirectController extends Mage_Core_Contr
             && ($product->getTypeId() === Solvingmagento_AffiliateProduct_Model_Product_Type::TYPE_AFFILIATE)
         ) {
             if (!Zend_Uri::check($product->getAffiliateLink())) {
-                Mage::getSingleton('customer/session')->addError(
+                Mage::getSingleton('core/session')->addError(
                     $this->helper->__('The partner product is not accessible.')
                 );
 
@@ -110,7 +110,7 @@ class Solvingmagento_AffiliateProduct_RedirectController extends Mage_Core_Contr
             return;
 
         } else {
-            Mage::getSingleton('customer/session')->addError(
+            Mage::getSingleton('core/session')->addError(
                 $this->helper->__('Affiliate product not found')
             );
 

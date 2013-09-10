@@ -35,7 +35,7 @@ class Solvingmagento_AffiliateProduct_Model_Product_Type extends Mage_Catalog_Mo
      * @param Varien_Object              $buyRequest  request object
      * @param Mage_Catalog_Model_Product $product     product ibject
      * @param string                     $processMode process mode: strict for cart, lite for wishlist
-     * 
+     *
      * @return array|string
      */
     protected function _prepareProduct(Varien_Object $buyRequest, $product, $processMode)
