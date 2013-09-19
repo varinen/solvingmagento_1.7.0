@@ -34,5 +34,4 @@
             <action method="setTemplate"><template>solvingmagento/affiliate/product/view/addtocart.phtml</template></action>
         </reference>
     </PRODUCT_TYPE_affiliate>
-
 </layout>
