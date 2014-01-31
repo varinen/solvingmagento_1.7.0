@@ -17,9 +17,46 @@
 <layout version="0.1.0">
     <default>
         <reference name="top.links">
-            <block type="solvingmagento_onestepcheckout/link" name="onestep_checkout_link">
+            <block type="slvmto_onestepc/link" name="onestep_checkout_link">
                 <action method="addOnestepCheckoutLink"></action>
             </block>
         </reference>
     </default>
+
+
+    <checkout_onestep_index translate="label">
+        <label>One Step Checkout</label>
+        <!-- Mage_Checkout -->
+        <reference name="root">
+            <action method="setTemplate"><template>page/1column.phtml</template></action>
+        </reference>
+        <reference name="content">
+            <block
+                    type="slvmto_onestepc/onestep"
+                    name="checkout.onestep"
+                    template="solvingmagento/onestepcheckout/onestep.phtml">
+                <block
+                        type="slvmto_onestepc/onestep_login"
+                        name="checkout.onestep.login" as="login"
+                        template="solvingmagento/onestepcheckout/login.phtml">
+                </block>
+                <block
+                        type="slvmto_onestepc/onestep_billing"
+                        name="checkout.onestep.billing" as="billing"
+                        template="solvingmagento/onestepcheckout/billing.phtml"/>
+                <block type="checkout/onepage_shipping" name="checkout.onepage.shipping" as="shipping" template="checkout/onepage/shipping.phtml"/>
+                <block type="checkout/onepage_shipping_method" name="checkout.onepage.shipping_method" as="shipping_method" template="checkout/onepage/shipping_method.phtml">
+                    <block type="checkout/onepage_shipping_method_available" name="checkout.onepage.shipping_method.available" as="available" template="checkout/onepage/shipping_method/available.phtml"/>
+                    <block type="checkout/onepage_shipping_method_additional" name="checkout.onepage.shipping_method.additional" as="additional" template="checkout/onepage/shipping_method/additional.phtml"/>
+                </block>
+                <block type="checkout/onepage_payment" name="checkout.onepage.payment" as="payment" template="checkout/onepage/payment.phtml">
+                    <block type="checkout/onepage_payment_methods" name="checkout.payment.methods" as="methods" template="checkout/onepage/payment/methods.phtml">
+                        <action method="setMethodFormTemplate"><method>purchaseorder</method><template>payment/form/purchaseorder.phtml</template></action>
+                    </block>
+                </block>
+                <block type="checkout/onepage_review" name="checkout.onepage.review" as="review" template="checkout/onepage/review.phtml"/>
+            </block>
+        </reference>
+    </checkout_onestep_index>
+
 </layout>
