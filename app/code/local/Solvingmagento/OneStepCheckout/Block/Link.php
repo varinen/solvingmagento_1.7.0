@@ -36,7 +36,7 @@ class Solvingmagento_OneStepCheckout_Block_Link extends Mage_Core_Block_Template
      */
     public function addOnestepCheckoutLink()
     {
-        if (!$this->helper('solvingmagento_onestepcheckout')->oneStepCheckoutEnabled()) {
+        if (!$this->helper('slvmto_onestepc')->oneStepCheckoutEnabled()) {
             return $this;
         }
 
@@ -45,7 +45,7 @@ class Solvingmagento_OneStepCheckout_Block_Link extends Mage_Core_Block_Template
             $text = $this->__('Checkout in One Step');
             $parentBlock->addLink(
                 $text,
-                'checkout',
+                'checkout/Onestep',
                 $text,
                 true,
                 array('_secure' => true),
