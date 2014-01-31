@@ -21,37 +21,37 @@
     </modules>
     <global>
         <blocks>
-            <solvingmagento_onestepcheckout>
+            <slvmto_onestepc>
                 <class>Solvingmagento_OneStepCheckout_Block</class>
-            </solvingmagento_onestepcheckout>
+            </slvmto_onestepc>
         </blocks>
         <helpers>
-            <solvingmagento_onestepcheckout>
+            <slvmto_onestepc>
                 <class>Solvingmagento_OneStepCheckout_Helper</class>
-            </solvingmagento_onestepcheckout>
+            </slvmto_onestepc>
         </helpers>
         <models>
-            <solvingmagento_onestepcheckout>
+            <slvmto_onestepc>
                 <class>Solvingmagento_OneStepCheckout_Model</class>
-            </solvingmagento_onestepcheckout>
+            </slvmto_onestepc>
         </models>
     </global>
     <frontend>
         <layout>
             <updates>
-                <solvingmagento_onestepcheckout module="Solvingmagento_OneStepCheckout">
+                <slvmto_onestepc module="Solvingmagento_OneStepCheckout">
                     <file>solvingmagento/onestepcheckout.xml</file>
-                </solvingmagento_onestepcheckout>
+                </slvmto_onestepc>
             </updates>
         </layout>
         <routers>
-            <solvingmagento_onestepcheckout>
-                <use>standard</use>
+            <checkout>
                 <args>
-                    <module>Solvingmagento_OneStepCheckout</module>
-                    <frontName>onestep</frontName>
+                    <modules>
+                        <Solvingmagento_OneStepCheckout before="Mage_Checkout">Solvingmagento_OneStepCheckout</Solvingmagento_OneStepCheckout>
+                    </modules>
                 </args>
-            </solvingmagento_onestepcheckout>
+            </checkout>
         </routers>
     </frontend>
     <default>
