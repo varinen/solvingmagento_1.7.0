@@ -1,6 +1,6 @@
 <?php
 /**
- * Solvingmagento_OneStepCheckout billing step block class
+ * Solvingmagento_OneStepCheckout shipping step block class
  *
  * PHP version 5.3
  *
@@ -14,7 +14,7 @@
  *
  */
 
-/** Solvingmagento_OneStepCheckout_Block_Onestep_Billing
+/** Solvingmagento_OneStepCheckout_Block_Onestep_Shipping
  *
  * @category Solvingmagento
  * @package  Solvingmagento_OneStepCheckout
@@ -24,7 +24,7 @@
  * @version Release: <package_version>
  * @link    http://www.solvingmagento.com/
  */
-class Solvingmagento_OneStepCheckout_Block_Onestep_Billing extends Mage_Checkout_Block_Onepage_Billing
+class Solvingmagento_OneStepCheckout_Block_Onestep_Shipping extends Mage_Checkout_Block_Onepage_Shipping
 {
 
     public function getAddressesHtmlSelect($type)

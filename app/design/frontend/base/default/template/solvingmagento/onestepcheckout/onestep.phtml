@@ -25,6 +25,9 @@
         -webkit-column-count: 3;
         -webkit-column-gap: 20px;
     }
+    div.osc li.fields {
+        width: 283px;
+    }
     div.section {
 
     }
@@ -36,6 +39,29 @@
         font-size: 16px;
         margin: 0 0 10px 0;
     }
+    div.customer-name, div.two-fields {
+        width: 100%;
+    }
+    div.customer-name .input-box, div.customer-name input[type="text"],
+    div.two-fields .input-box, div.two-fields input[type="text"],
+    div.two-fields .input-box, div.two-fields input[type="password"]{
+        width: 100%;
+    }
+    div.customer-name .field, div.two-fields .field {
+        float:left;
+        margin-right: 10px;
+        width: 122px;
+    }
+
+    ul.form-list input[type="radio"] {
+        float:left;
+        margin-right: 6px;
+    }
+
+    ul.form-list div.input-box label {
+        width: 235px;
+    }
+
 </style>
 <div class="page-title">
     <h1><?php echo $this->__('Checkout') ?></h1>

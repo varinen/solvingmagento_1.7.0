@@ -44,7 +44,10 @@
                         type="slvmto_onestepc/onestep_billing"
                         name="checkout.onestep.billing" as="billing"
                         template="solvingmagento/onestepcheckout/billing.phtml"/>
-                <block type="checkout/onepage_shipping" name="checkout.onepage.shipping" as="shipping" template="checkout/onepage/shipping.phtml"/>
+                <block
+                        type="slvmto_onestepc/onestep_shipping"
+                        name="checkout.onestep.shipping" as="shipping"
+                        template="solvingmagento/onestepcheckout/shipping.phtml"/>
                 <block type="checkout/onepage_shipping_method" name="checkout.onepage.shipping_method" as="shipping_method" template="checkout/onepage/shipping_method.phtml">
                     <block type="checkout/onepage_shipping_method_available" name="checkout.onepage.shipping_method.available" as="available" template="checkout/onepage/shipping_method/available.phtml"/>
                     <block type="checkout/onepage_shipping_method_additional" name="checkout.onepage.shipping_method.additional" as="additional" template="checkout/onepage/shipping_method/additional.phtml"/>
