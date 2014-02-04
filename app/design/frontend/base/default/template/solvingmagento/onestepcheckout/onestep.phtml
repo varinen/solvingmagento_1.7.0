@@ -62,14 +62,44 @@
         width: 235px;
     }
 
+    div.osc-column-wrapper {
+        width: 890px;
+        padding: 5px;
+        min-height: 200px;;
+    }
+    div.osc-column-wrapper div.osc-column {
+        width: 293px;
+        margin-right: 5px;
+        min-height: 200px;
+        background-color: green;
+        float: left;
+    }
+
+    div.osc-column-wrapper div.right {
+        margin-right: 0;
+    }
+
 </style>
 <div class="page-title">
     <h1><?php echo $this->__('Checkout') ?></h1>
 </div>
 <script
     type="text/javascript"
-    src="<?php echo $this->getSkinUrl('js/solvignmagento/onestepcheckout/Onestep.js') ?>"
+    src="<?php echo $this->getSkinUrl('js/solvingmagento/onestepcheckout/onestep.js') ?>"
     ></script>
+<div class="osc-column-wrapper">
+    <div id="osc-column-left" class="osc-column left">
+
+    </div>
+    <div id="osc-column-center" class="osc-column center">
+
+    </div>
+    <div id="osc-column-right" class="osc-column right">
+
+    </div>
+</div>
+
+
 <div class="osc" id="checkoutSteps" >
     <?php
     $i = 0;
@@ -86,5 +116,25 @@
         </div>
     <?php endforeach ?>
 </div>
+
 <script type="text/javascript">
+    //<![CDATA[
+    var login          = new Login('login'),
+        billing        = new Billing('billing'),
+        shipping       = new Shipping('shipping'),
+        shippingMethod = new ShippingMethod('shipping_method'),
+        payment        = new Payment('payment'),
+        review         = new Review('review'),
+        checkout       = new Checkout(
+            {
+                'login': login,
+                'billing': billing,
+                'shipping': shipping,
+                'shipping_method': shippingMethod,
+                'payment': payment,
+                'review': review
+            }
+        );
+
+    //]]>
 </script>

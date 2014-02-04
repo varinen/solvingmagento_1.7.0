@@ -48,16 +48,43 @@
                         type="slvmto_onestepc/onestep_shipping"
                         name="checkout.onestep.shipping" as="shipping"
                         template="solvingmagento/onestepcheckout/shipping.phtml"/>
-                <block type="checkout/onepage_shipping_method" name="checkout.onepage.shipping_method" as="shipping_method" template="checkout/onepage/shipping_method.phtml">
-                    <block type="checkout/onepage_shipping_method_available" name="checkout.onepage.shipping_method.available" as="available" template="checkout/onepage/shipping_method/available.phtml"/>
-                    <block type="checkout/onepage_shipping_method_additional" name="checkout.onepage.shipping_method.additional" as="additional" template="checkout/onepage/shipping_method/additional.phtml"/>
+                <block
+                        type="slvmto_onestepc/onestep_shipping_method"
+                        name="checkout.onestep.shipping_method"
+                        as="shipping_method"
+                        template="solvingmagento/onestepcheckout/shipping_method.phtml">
+                    <block
+                            type="checkout/onepage_shipping_method_available"
+                            name="checkout.onepage.shipping_method.available"
+                            as="available"
+                            template="checkout/onepage/shipping_method/available.phtml"/>
+                    <block
+                            type="checkout/onepage_shipping_method_additional"
+                            name="checkout.onepage.shipping_method.additional"
+                            as="additional"
+                            template="checkout/onepage/shipping_method/additional.phtml"/>
                 </block>
-                <block type="checkout/onepage_payment" name="checkout.onepage.payment" as="payment" template="checkout/onepage/payment.phtml">
-                    <block type="checkout/onepage_payment_methods" name="checkout.payment.methods" as="methods" template="checkout/onepage/payment/methods.phtml">
-                        <action method="setMethodFormTemplate"><method>purchaseorder</method><template>payment/form/purchaseorder.phtml</template></action>
+                <block
+                        type="slvmto_onestepc/onestep_payment"
+                        name="checkout.onestep.payment"
+                        as="payment"
+                        template="solvingmagento/onestepcheckout/onepage/payment.phtml">
+                    <block
+                            type="checkout/onepage_payment_methods"
+                            name="checkout.payment.methods"
+                            as="methods"
+                            template="checkout/onepage/payment/methods.phtml">
+                        <action method="setMethodFormTemplate">
+                            <method>purchaseorder</method>
+                            <template>payment/form/purchaseorder.phtml</template>
+                        </action>
                     </block>
                 </block>
-                <block type="checkout/onepage_review" name="checkout.onepage.review" as="review" template="checkout/onepage/review.phtml"/>
+                <block
+                        type="slvmto_onestepc/onestep_review"
+                        name="checkout.onestep.review"
+                        as="review"
+                        template="solvingmagento/onestepcheckout/review.phtml"/>
             </block>
         </reference>
     </checkout_onestep_index>

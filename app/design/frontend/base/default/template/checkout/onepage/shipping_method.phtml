@@ -1,3 +1,4 @@
+
 <?php
 /**
  * Magento
@@ -29,9 +30,9 @@
         <?php echo $this->getChildHtml('available') ?>
     </div>
     <script type="text/javascript">
-    //<![CDATA[
+        //<![CDATA[
         var shippingMethod = new ShippingMethod('co-shipping-method-form', "<?php echo $this->getUrl('checkout/onepage/saveShippingMethod') ?>");
-    //]]>
+        //]]>
     </script>
     <div id="onepage-checkout-shipping-method-additional-load">
         <?php echo $this->getChildHtml('additional') ?>
