@@ -45,7 +45,7 @@ class Solvingmagento_OneStepCheckout_Block_Link extends Mage_Core_Block_Template
             $text = $this->__('Checkout in One Step');
             $parentBlock->addLink(
                 $text,
-                'checkout/Onestep',
+                'checkout/onestep',
                 $text,
                 true,
                 array('_secure' => true),
