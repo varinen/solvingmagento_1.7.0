@@ -14,80 +14,13 @@
  *
  */
 ?>
-<style>
-    div.osc {
-        padding: 5px;
 
-        column-count: 3;
-        column-gap: 20px;
-        -moz-column-count: 3;
-        -moz-column-gap: 20px;
-        -webkit-column-count: 3;
-        -webkit-column-gap: 20px;
-    }
-    div.osc li.fields {
-        width: 283px;
-    }
-    div.section {
-
-    }
-    div.section h2 {
-        float: left;
-    }
-    div.section .step-title {
-        font-weight: bold;
-        font-size: 16px;
-        margin: 0 0 10px 0;
-    }
-    div.customer-name, div.two-fields {
-        width: 100%;
-    }
-    div.customer-name .input-box, div.customer-name input[type="text"],
-    div.two-fields .input-box, div.two-fields input[type="text"],
-    div.two-fields .input-box, div.two-fields input[type="password"]{
-        width: 100%;
-    }
-    div.customer-name .field, div.two-fields .field {
-        float:left;
-        margin-right: 10px;
-        width: 122px;
-    }
-
-    ul.form-list input[type="radio"] {
-        float:left;
-        margin-right: 6px;
-    }
-
-    ul.form-list div.input-box label {
-        width: 235px;
-    }
-
-    div.osc-column-wrapper {
-        width: 890px;
-        padding: 5px;
-        min-height: 200px;;
-    }
-    div.osc-column-wrapper div.osc-column {
-        width: 293px;
-        margin-right: 5px;
-        min-height: 200px;
-        background-color: green;
-        float: left;
-    }
-
-    div.osc-column-wrapper div.right {
-        margin-right: 0;
-    }
-
-</style>
 <div class="page-title">
     <h1><?php echo $this->__('Checkout') ?></h1>
 </div>
-<script
-    type="text/javascript"
-    src="<?php echo $this->getSkinUrl('js/solvingmagento/onestepcheckout/onestep.js') ?>"
-    ></script>
+
 <div class="osc-column-wrapper">
+    <div id="osc-column-up" class="osc-column up"></div>
     <div id="osc-column-left" class="osc-column left">
 
     </div>
@@ -97,10 +30,12 @@
     <div id="osc-column-right" class="osc-column right">
 
     </div>
+
+    <div id="osc-column-bottom" class="osc-column bottom"></div>
 </div>
 
 
-<div class="osc" id="checkoutSteps" >
+<div id="checkoutStepsPreload" >
     <?php
     $i = 0;
     foreach ($this->getSteps() as $stepId => $stepInfo): ?>
@@ -116,25 +51,13 @@
         </div>
     <?php endforeach ?>
 </div>
-
+<script
+    type="text/javascript"
+    src="<?php echo $this->getSkinUrl('js/solvingmagento/onestepcheckout/onestep.js') ?>"
+    ></script>
 <script type="text/javascript">
     //<![CDATA[
-    var login          = new Login('login'),
-        billing        = new Billing('billing'),
-        shipping       = new Shipping('shipping'),
-        shippingMethod = new ShippingMethod('shipping_method'),
-        payment        = new Payment('payment'),
-        review         = new Review('review'),
-        checkout       = new Checkout(
-            {
-                'login': login,
-                'billing': billing,
-                'shipping': shipping,
-                'shipping_method': shippingMethod,
-                'payment': payment,
-                'review': review
-            }
-        );
+
 
     //]]>
 </script>

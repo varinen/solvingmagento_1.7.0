@@ -53,15 +53,15 @@ class Solvingmagento_OneStepCheckout_Block_Onestep_Billing extends Mage_Checkout
             $html = '';
             foreach ($options as $option) {
                 $html .= '<div><input type="radio" name="' . $type . '_address_id" value="' . $option['value'] . '"' .
-                    ' id="' . $option['value'] . '-' . $type . '-address-id"';
+                    ' id="' . $type . '-address-id-' . $option['value'] .'"';
                 if ($option['value'] == $addressId) {
                     $html .= ' checked="checked"';
                 }
-                $html .= '/><label for="' . $option['value'] . '-' . $type . '-address-id">' . $option['label'] . '</label>'
+                $html .= '/><label for="' . $type . '-address-id-' . $option['value'] . '">' . $option['label'] . '</label>'
                     . PHP_EOL . '<div style="height: 1px; clear:both"></div></div>' . PHP_EOL;
             }
-            $html .= '<div><input type="radio" name="' . $type . '_address_id" value="" id="-' . $type . '-address-id">';
-            $html .= '<label for="-' . $type . '-address-id">' . Mage::helper('checkout')->__('New address') . '</label>';
+            $html .= '<div><input type="radio" name="' . $type . '_address_id" value="" id="' . $type . '-address-id-">';
+            $html .= '<label for="' . $type . '-address-id-">' . Mage::helper('checkout')->__('New address') . '</label>';
             $html .= PHP_EOL . '<div style="height: 1px; clear:both"></div></div>' . PHP_EOL;
 
             return $html;

@@ -30,6 +30,13 @@
         <reference name="root">
             <action method="setTemplate"><template>page/1column.phtml</template></action>
         </reference>
+        <reference name="head">
+            <action method="addItem">
+                <type>skin_css</type>
+                <name>css/solvingmagento/onestepcheckout/onestep.css</name>
+                <params/>
+            </action>
+        </reference>
         <reference name="content">
             <block
                     type="slvmto_onestepc/onestep"

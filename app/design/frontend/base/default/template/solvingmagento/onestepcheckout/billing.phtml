@@ -20,8 +20,8 @@
     <fieldset>
         <ul class="form-list">
             <?php if ($this->customerHasAddresses()): ?>
-                <li class="fields">
-                    <label for="billing-address-select">
+                <li class="fields" id="billing-address-select">
+                    <label>
                         <?php echo $this->__('Select a billing address from your address book or enter a new address.') ?>
                     </label>
                     <div class="input-box">
@@ -71,10 +71,17 @@
                                             type="text"
                                             name="billing[email]"
                                             id="billing:email"
-                                            value="<?php echo $this->escapeHtml($this->getAddress()->getEmail()) ?>"
+                                            value="<?php
+                                            if ($this->isCustomerLoggedIn()) {
+                                                $email = $this->getCustomer()->getEmail();
+                                                echo $this->escapeHtml($email);
+                                            } else {
+                                                echo $this->escapeHtml($this->getAddress()->getEmail());
+                                            }
+                                             ?>"
                                             title="<?php echo $this->__('Email Address') ?>"
                                             class="input-text validate-email required-entry"
-                                            <?php if(!$this->isCustomerLoggedIn()) : ?> disabled="disabled" <?php endif;?>/>
+                                            <?php if($this->isCustomerLoggedIn()) : ?> disabled="disabled" <?php endif;?>/>
                                     </div>
                                 </div>
                             </div>
@@ -137,6 +144,12 @@
                         </li>
                         <li class="fields">
                             <div class="field">
+                                <label for="billing:country_id" class="required"><em>*</em><?php echo $this->__('Country') ?></label>
+                                <div class="input-box">
+                                    <?php echo $this->getCountryHtmlSelect('billing') ?>
+                                </div>
+                            </div>
+                            <div class="field">
                                 <label for="billing:region_id" class="required"><em>*</em><?php echo $this->__('State/Province') ?></label>
                                 <div class="input-box">
                                     <select
@@ -160,12 +173,6 @@
                                         title="<?php echo $this->__('State/Province') ?>"
                                         class="input-text <?php echo $this->helper('customer/address')->getAttributeValidationClass('region') ?>"
                                         style="display:none;" />
-                                </div>
-                            </div>
-                            <div class="field">
-                                <label for="billing:country_id" class="required"><em>*</em><?php echo $this->__('Country') ?></label>
-                                <div class="input-box">
-                                    <?php echo $this->getCountryHtmlSelect('billing') ?>
                                 </div>
                             </div>
                         </li>
@@ -326,7 +333,7 @@
 <script type="text/javascript">
     //<![CDATA[
     //billingForm.setElementsRelation('billing:country_id', 'billing:region', '<?php echo $this->getUrl('directory/json/childRegion') ?>', '<?php echo $this->__('Select State/Province...') ?>');
-    $('billing-address-select') && billing.newAddress(!$('billing-address-select').value);
+   // $('billing-address-select') && billing.newAddress(!$('billing-address-select').value);
 
     var billingRegionUpdater = new RegionUpdater('billing:country_id', 'billing:region', 'billing:region_id', <?php echo $this->helper('directory')->getRegionJson() ?>, undefined, 'billing:postcode');
     if ($('onepage-guest-register-button')) {
