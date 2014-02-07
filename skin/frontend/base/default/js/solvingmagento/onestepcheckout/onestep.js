@@ -1,4 +1,5 @@
-var Checkout = Class.create();
+var failureUrl = '/checkout/cart/';
+var Checkout   = Class.create();
 
 Checkout.prototype = {
     checkoutContainer: null,
@@ -43,6 +44,55 @@ Checkout.prototype = {
             }
         }
 
+    },
+
+    /**
+     * Action in case of a failed (e.g., 404) ajax request
+     */
+    ajaxFailure: function(){
+        location.href = failureUrl;
+    },
+
+    /**
+     * Validates the form data in an address step
+     *
+     * @param type billing or shipping
+     *
+     * @returns {boolean}
+     */
+    validateAddress: function(type) {
+
+        if (type  !== 'billing' && type !== 'shipping') {
+            return false;
+        }
+        var validationResult         = false,
+            newAddressFormValidation = false,
+            validator                = new Validation('co-' + type + '-form');
+
+        newAddressFormValidation = validator.validate();
+
+        $$('div.advice-required-entry-' + type + '-address-id').each(
+            function(element) {
+                $(element).hide();
+            }
+        );
+        if ($$('input[name="' + type+ '_address_id"]')) {
+            $$('input[name="' + type + '_address_id"]').each(
+                function(element) {
+                    if ($(element).checked) {
+                        validationResult = true;
+                    }
+                }
+            );
+            if (!validationResult) {
+                $$('div.advice-required-entry-' + type + '-address-id').each(
+                    function(element) {
+                        $(element).show();
+                    }
+                );
+            }
+        }
+        return (newAddressFormValidation && validationResult);
     }
 }
 var Step = Class.create();
@@ -65,19 +115,45 @@ var Billing        = Class.create();
 
 Billing.prototype = {
     stepContainer: null,
+
+    /**
+     * Required initialization
+     *
+     * @param id step id
+     */
     initialize: function(id) {
         this.stepContainer = $('checkout-step-' + id);
-        $$('input[name="billing_address_id"]').each(function(element) {
-            Event.observe($(element), 'change', this.newBillingAddress.bindAsEventListener(this));
-        }.bind(this));
+
+        /**
+         * Observe the customer choice regarding an existing address
+         */
+        $$('input[name="billing_address_id"]').each(
+            function(element) {
+                Event.observe(
+                    $(element),
+                    'change',
+                    this.newBillingAddress.bindAsEventListener(this)
+                );
+            }.bind(this)
+        );
     },
+
+    /**
+     * Toggles the new billing address form display depending on customer's
+     * decision to use an existing address or to enter a new one.
+     * Works for logged in customers only
+     *
+     * @param event
+     */
     newBillingAddress: function(event) {
         var value;
-        $$('input[name="billing_address_id"]').each(function(element) {
-            if (!!element.checked) {
-                value = !!parseInt(element.value);
+        $$('input[name="billing_address_id"]').each(
+            function(element) {
+                if (!!element.checked) {
+                    value = !!parseInt(element.value);
+                }
             }
-        });
+        );
         if (!value) {
             Element.show('billing-new-address-form');
         } else {
@@ -90,33 +166,65 @@ var Shipping = Class.create();
 
 Shipping.prototype = {
     stepContainer: null,
+
+    /**
+     * Required initialization
+     *
+     * @param id step id
+     */
     initialize: function(id) {
         this.stepContainer = $('checkout-step-' + id);
-        $$('input[name="shipping_address_id"]').each(function(element) {
-            Event.observe($(element), 'change', this.newShippingAddress.bindAsEventListener(this));
-        }.bind(this));
+        /**
+         * Observe the customer choice regarding an existing address
+         */
+        $$('input[name="shipping_address_id"]').each(
+            function(element) {
+                Event.observe(
+                    $(element),
+                    'change',
+                    this.newShippingAddress.bindAsEventListener(this)
+                );
+            }.bind(this)
+        );
 
         /**
-         * Observe the state of the "use billing address for shipping" option when initializing the shipping step
+         * Observe the state of the "use billing address for shipping" option
+         * when initializing the shipping step
          */
-        $$('input[name="billing[use_for_shipping]"]').each(function(element) {
-           if (!!element.checked) {
-               $('shipping:same_as_billing').checked = !!element.value;
-           }
-        });
+        $$('input[name="billing[use_for_shipping]"]').each(
+            function(element) {
+                if (!!element.checked) {
+                    $('shipping:same_as_billing').checked = !!element.value;
+                }
+            }
+        );
 
         /**
          * Start observing the change of the "use billing address for shipping" option
          */
-        $$('input[name="billing[use_for_shipping]"]').each(function(element) {
-            Event.observe($(element), 'change', this.toggleSameAsBilling.bindAsEventListener(this));
-        }.bind(this));
+        $$('input[name="billing[use_for_shipping]"]').each(
+            function(element) {
+                Event.observe(
+                    $(element),
+                    'change',
+                    this.toggleSameAsBilling.bindAsEventListener(this)
+                );
+            }.bind(this)
+        );
 
-        Event.observe($('shipping:same_as_billing'), 'change', function(event) {
-            if (Event.element(event).checked) {
-                this.setSameAsBilling(true);
-            }
-        }.bind(this));
+        /**
+         * Set the shipping form to the data of the billing one in case the customer
+         * select the "use billing address" checkbox
+         */
+        Event.observe(
+            $('shipping:same_as_billing'),
+            'change',
+            function(event) {
+                if (Event.element(event).checked) {
+                    this.setSameAsBilling(true);
+                }
+            }.bind(this)
+        );
     },
 
     /**
@@ -128,13 +236,19 @@ Shipping.prototype = {
      */
     newShippingAddress: function(event) {
         var value;
-        $$('input[name="shipping_address_id"]').each(function(element) {
-            if (!!element.checked) {
-                value = !!parseInt(element.value);
+        $$('input[name="shipping_address_id"]').each(
+            function(element) {
+                if (!!element.checked) {
+                    value = !!parseInt(element.value);
+                    var billingId = element.id.replace(/^shipping/, 'billing');
+                    if (!$(billingId).checked) {
+                        $('shipping:same_as_billing').checked = false;
+                    }
+                }
             }
-        });
+        );
         if (!value) {
-            $('shipping:same_as_billing').checked = false;
+         //   $('shipping:same_as_billing').checked = false;
             Element.show('shipping-new-address-form');
         } else {
             Element.hide('shipping-new-address-form');
@@ -151,11 +265,13 @@ Shipping.prototype = {
      */
     toggleSameAsBilling: function(event) {
         var value = false;
-        $$('input[name="billing[use_for_shipping]"]').each(function(element) {
-            if (!!element.checked) {
-                value = !!parseInt(element.value);
+        $$('input[name="billing[use_for_shipping]"]').each(
+            function(element) {
+                if (!!element.checked) {
+                    value = !!parseInt(element.value);
+                }
             }
-        });
+        );
 
         //value === true : same as billing
         //value === false : different shipping address
@@ -171,6 +287,11 @@ Shipping.prototype = {
 
     },
 
+    /**
+     * Copies the data from the billing form into the shipping one
+     *
+     * @param flag flag to copy the data or not
+     */
     setSameAsBilling: function(flag) {
         if (flag) {
             var arrElements = Form.getElements($('co-shipping-form'));
@@ -180,13 +301,20 @@ Shipping.prototype = {
                     if ((billingId === 'billing:region_id') && (shippingRegionUpdater)) {
                         shippingRegionUpdater.update();
                     }
+
                     arrElements[elemIndex].value = ($(billingId) && $(billingId).value) ? $(billingId).value : '';
                     if ($(billingId) && !!$(billingId).checked) {
                         arrElements[elemIndex].checked = true;
                     }
-                    if ($(billingId) && ($(billingId).name == 'billing_address_id') && (!!$(billingId).value)) {
+
+                    if ($(billingId)
+                        && ($(billingId).name == 'billing_address_id')
+                        && (!$(billingId).value)
+                        && ($(billingId).checked)
+                    ) {
                         this.newShippingAddress();
                     }
+
                 }
             }
         } else {
@@ -210,7 +338,92 @@ Shipping.prototype = {
         }
     }
 }
-var ShippingMethod = Class.create(Step);
+var ShippingMethod = Class.create();
+
+ShippingMethod.prototype = {
+    stepContainer: null,
+    initialize: function(id, saveAddressesUrl) {
+        this.stepContainer = $('checkout-step-' + id);
+        this.saveAddressesUrl = saveAddressesUrl || 'checkout/onestep/saveAddresses';
+        this.onSave = this.updateMethods.bindAsEventListener(this);
+
+        /**
+         * Load methods when user clicks this element
+         */
+        Event.observe(
+            $('reload-shipping-method-button'),
+            'click',
+            this.loadMethods.bindAsEventListener(this)
+        );
+    },
+
+    loadMethods: function() {
+        this.saveAddresses();
+    },
+
+    saveAddresses: function() {
+        var parameters = {},
+            validB     = false,
+            validS     = false,
+            valid      = false;
+
+        if ($('shipping:same_as_billing').checked && shipping) {
+            shipping.setSameAsBilling(true);
+        }
+
+        if (checkout) {
+            validB = checkout.validateAddress('billing');
+            validS = checkout.validateAddress('shipping');
+            //needed to invoke both validations, hence two extra variables:
+            valid = validB && validS
+        }
+
+        if (valid) {
+            this.toggleLoading(true);
+
+            parameters.billing  = Form.serialize('co-billing-form');
+            parameters.shipping = Form.serialize('co-shipping-form');
+
+            var request = new Ajax.Request(
+                this.saveAddressesUrl,
+                {
+                    method:     'post',
+                    onComplete: this.toggleLoading(false),
+                    onSuccess:  this.onSave,
+                    onFailure:  checkout.ajaxFailure.bind(checkout),
+                    parameters: JSON.stringify(parameters)
+                }
+            );
+        }
+    },
+
+    toggleLoading: function(flag) {
+
+    },
+
+    updateMethods: function(transport){
+        var response = {};
+        if (transport && transport.responseText){
+            response = JSON.parse(transport.responseText);
+        }
+
+        if (response.error){
+            if ((typeof response.message) == 'string') {
+                alert(response.message);
+            } else {
+                if (window.billingRegionUpdater) {
+                    billingRegionUpdater.update();
+                }
+                alert(response.message.join("\n"));
+            }
+            return false;
+        }
+        if (response.update_step.shipping_method) {
+            $('checkout-shipping-method-load').update(response.update_step.shipping_method);
+        }
+        //payment.initWhatIsCvvListeners();
+    }
+}
 var Payment        = Class.create(Step);
 var Review         = Class.create(Step);
 
