@@ -57,11 +57,15 @@ class Solvingmagento_OneStepCheckout_Block_Onestep_Shipping extends Mage_Checkou
                 if ($option['value'] == $addressId) {
                     $html .= ' checked="checked"';
                 }
-                $html .= '/><label for="' . $type . '-address-id-' . $option['value'] . '">' . $option['label'] . '</label>'
-                    . PHP_EOL . '<div style="height: 1px; clear:both"></div></div>' . PHP_EOL;
+                $html .= '/><label for="' . $type . '-address-id-' . $option['value'] . '">' . $option['label'] . '</label>';
+                $html .= '<div class="validation-advice advice-required-entry-shipping-address-id"'
+                    . ' style="display:none">' . Mage::helper('checkout')->__('This is a required field.') . '</div>'
+                    . '<div style="height: 1px; clear:both"></div></div>' . PHP_EOL;
             }
             $html .= '<div><input type="radio" name="' . $type . '_address_id" value="" id="' . $type . '-address-id-">';
             $html .= '<label for="' . $type . '-address-id-">' . Mage::helper('checkout')->__('New address') . '</label>';
+            $html .= '<div class="validation-advice advice-required-entry-shipping-address-id" style="display:none">'
+                . Mage::helper('checkout')->__('This is a required field.') . '</div>';
             $html .= PHP_EOL . '<div style="height: 1px; clear:both"></div></div>' . PHP_EOL;
 
             return $html;
