@@ -108,7 +108,56 @@ Step.prototype = {
     }
 }
 
-var Login          = Class.create(Step);
+var Login = Class.create();
+
+Login.prototype = {
+    stepContainer: null,
+    /**
+     * Required initialization
+     *
+     * @param id step id
+     */
+    initialize: function(id, saveMethodUrl) {
+        this.saveMethodsUrl = saveMethodUrl || 'checkout/onestep/saveMethod';
+        this.stepContainer = $('checkout-step-' + id);
+
+        /**
+         * Observe the customer choice regarding an existing address
+         */
+        $$('input[name="checkout-method"]').each(
+            function(element) {
+                Event.observe(
+                    $(element),
+                    'click',
+                    this.setMethod.bindAsEventListener(this)
+                );
+            }.bind(this)
+        );
+    },
+
+    setMethod: function(event) {
+        var value = Event.element(event).value;
+        this.toggleLoading(true);
+        var request = new Ajax.Request(
+            this.saveMethodsUrl,
+            {
+                method:     'post',
+                onComplete: this.toggleLoading(false),
+                onFailure:  checkout.ajaxFailure.bind(checkout),
+                parameters: JSON.stringify({checkout_method: value})
+            }
+        );
+    },
+
+    toggleLoading: function(mode) {
+        if (mode) {
+            $('login-please-wait').show();
+        } else {
+            $('login-please-wait').hide();
+        }
+    }
+
+}
 
 
 var Billing        = Class.create();

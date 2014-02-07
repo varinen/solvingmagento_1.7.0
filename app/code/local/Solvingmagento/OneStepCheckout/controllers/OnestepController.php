@@ -96,4 +96,29 @@ class Solvingmagento_OneStepCheckout_OnestepController extends Mage_Checkout_One
         $this->getLayout()->getBlock('head')->setTitle($this->__('Checkout'));
         $this->renderLayout();
     }
+
+    public function saveMethodAction()
+    {
+        if ($this->_expireAjax()) {
+            return;
+        }
+        if ($this->getRequest()->isPost()) {
+            $method = $this->getRequest()->getPost('chekout_method');
+            $result = $this->getOnepage()->saveCheckoutMethod($method);
+            $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
+        }
+    }
+
+    public function saveAddressesAction()
+    {
+        if ($this->_expireAjax()) {
+            return;
+        }
+
+        if ($this->getRequest()->isPost()) {
+
+            $result = array('success' => true);
+            $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
+        }
+    }
 }
