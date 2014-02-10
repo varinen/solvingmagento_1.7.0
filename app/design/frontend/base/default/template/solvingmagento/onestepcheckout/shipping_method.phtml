@@ -15,21 +15,25 @@
  *
  */
 ?>
-<form id="co-shipping-method-form" action="">
-    <div id="checkout-shipping-method-load">
-        <?php echo $this->getChildHtml('available') ?>
-    </div>
-    <div id="reload-shipping-method">
-        <a href="#" id="reload-shipping-method-button"><?php echo $this->__('Update shipping options');?></a>
-    </div>
-    <div id="onepage-checkout-shipping-method-additional-load">
-        <?php echo $this->getChildHtml('additional') ?>
-    </div>
-    <span id="shipping-method-please-wait" class="please-wait" style="display:none;">
-        <img
-            src="<?php echo $this->getSkinUrl('images/opc-ajax-loader.gif') ?>"
-            alt="<?php echo $this->__('Loading next step...') ?>"
-            title="<?php echo $this->__('Loading next step...') ?>"
-            class="v-middle" /> <?php echo $this->__('Loading next step...') ?>
-    </span>
-</form>
+<div id="shipping_method-please-wait" style="display: none">
+        <span class="please-wait">
+            <img
+                src="<?php echo $this->getSkinUrl('images/opc-ajax-loader.gif') ?>"
+                alt="<?php echo $this->__('Saving data, please wait...') ?>"
+                title="<?php echo $this->__('Saving data, please wait...') ?>" class="v-middle" />
+        </span>
+</div>
+<div style="clear: both"></div>
+<div class="onestep-step">
+    <form id="co-shipping-method-form" action="">
+        <div id="checkout-shipping-method-load">
+            <?php echo $this->getChildHtml('available') ?>
+        </div>
+        <div id="reload-shipping-method">
+            <a href="#" id="reload-shipping-method-button"><?php echo $this->__('Update shipping options');?></a>
+        </div>
+        <div id="onepage-checkout-shipping-method-additional-load">
+            <?php echo $this->getChildHtml('additional') ?>
+        </div>
+    </form>
+</div>

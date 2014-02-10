@@ -15,13 +15,6 @@
  *
  */
 ?>
-<script type="text/javascript">
-    //<![CDATA[
-    var quoteBaseGrandTotal = <?php echo (float)$this->getQuoteBaseGrandTotal(); ?>;
-    var checkQuoteBaseGrandTotal = quoteBaseGrandTotal;
-    var lastPrice;
-    //]]>
-</script>
 <form action="" id="co-payment-form">
     <fieldset>
         <?php echo $this->getChildHtml('methods') ?>
@@ -42,13 +35,6 @@
 </div>
 <div>
     <p class="required"><?php echo $this->__('* Required Fields') ?></p>
-    <span class="please-wait" id="payment-please-wait" style="display:none;">
-        <img
-            src="<?php echo $this->getSkinUrl('images/opc-ajax-loader.gif') ?>"
-            alt="<?php echo $this->__('Loading next step...') ?>"
-            title="<?php echo $this->__('Loading next step...') ?>"
-            class="v-middle" /> <?php echo $this->__('Loading next step...') ?>
-    </span>
 </div>
 <script type="text/javascript">
     //<![CDATA[
@@ -68,6 +54,6 @@
 </script>
 <script type="text/javascript">
     //<![CDATA[
-//    payment.currentMethod = "<?php echo $this->getChild('methods')->getSelectedMethodCode() ?>";
+ var currentPaymentMethod = "<?php echo $this->getChild('methods')->getSelectedMethodCode() ?>";
     //]]>
 </script>

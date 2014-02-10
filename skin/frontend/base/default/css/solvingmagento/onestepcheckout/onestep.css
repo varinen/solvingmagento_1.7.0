@@ -43,8 +43,12 @@ div.osc-column-wrapper h3 {
 div.osc-column-wrapper div.osc-column {
     width: 293px;
     margin-right: 5px;
-    min-height: 120px;
     float: left;
+}
+
+#billing-address-select div.input-box,
+#shipping-address-select div.input-box {
+    padding: 10px 0;
 }
 
 div.osc-column-wrapper div.right {
@@ -61,4 +65,14 @@ div.osc-column-wrapper div.bottom {
 div.login-method {
     float:left;
     margin-right: 20px;
+}
+
+#login-please-wait, #shipping_method-please-wait {
+    float: left;
+    margin: 0 15px;
+}
+
+#checkout-step-login > .step-title,
+#checkout-step-shipping_method > .step-title {
+    float:left;
 }

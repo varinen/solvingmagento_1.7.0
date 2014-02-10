@@ -15,6 +15,15 @@
  *
  */
 ?>
+<div id="login-please-wait" style="display: none">
+        <span class="please-wait">
+            <img
+                src="<?php echo $this->getSkinUrl('images/opc-ajax-loader.gif') ?>"
+                alt="<?php echo $this->__('Saving data, please wait...') ?>"
+                title="<?php echo $this->__('Saving data, please wait...') ?>" class="v-middle" />
+        </span>
+</div>
+<div style="clear: both"></div>
 <div class="onestep-step">
     <div class="login-method">
         <?php echo $this->getMessagesBlock()->getGroupedHtml() ?>
@@ -60,9 +69,5 @@
         <p></p><?php echo $this->__('Already registered?') ?>
         <a href="/customer/account/login"><?php echo $this->__('Please log in') ?></a></p>
     </div>
-    <div style="clear: both">
-        <span class="please-wait" id="login-please-wait" style="display:none;">
-            <img src="<?php echo $this->getSkinUrl('images/opc-ajax-loader.gif') ?>" alt="<?php echo $this->__('Saving data, please wait...') ?>" title="<?php echo $this->__('Loading next step...') ?>" class="v-middle" /> <?php echo $this->__('Loading next step...') ?>
-        </span>
-    </div>
+    <div style="clear:both;"></div>
 </div>
