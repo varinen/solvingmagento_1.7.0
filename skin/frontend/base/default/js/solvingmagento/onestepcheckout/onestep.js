@@ -1,5 +1,8 @@
-var failureUrl = '/checkout/cart/';
-var Checkout   = Class.create();
+var failureUrl = '/checkout/cart/',
+    Checkout   = Class.create(),
+//externally set variables:
+    switchToMethod,
+    currentPaymentMethod;
 
 Checkout.prototype = {
     checkoutContainer: null,
@@ -76,7 +79,9 @@ Checkout.prototype = {
                 $(element).hide();
             }
         );
-        if ($$('input[name="' + type+ '_address_id"]') && $$('input[name="' + type+ '_address_id"]').length > 0) {
+        if ($$('input[name="' + type+ '_address_id"]')
+            && $$('input[name="' + type+ '_address_id"]').length > 0
+        ) {
             $$('input[name="' + type + '_address_id"]').each(
                 function(element) {
                     if ($(element).checked) {
@@ -98,6 +103,126 @@ Checkout.prototype = {
     },
 
     /**
+     * Checks if the checkout method is selected, when the selection is there
+     *
+     * @returns {boolean}
+     */
+    validateCheckoutMethod: function() {
+        var valid = true;
+        $$('div.advice-required-entry-checkout_method').each(
+            function(element) {
+                $(element).hide();
+            }
+        )
+        if ($$('input[name="checkout_method"]').length > 0) {
+            valid = false;
+            $$('input[name="checkout_method"]').each(
+                function(element) {
+                    if ($(element).checked) {
+                        valid = true;
+                    }
+                }
+            );
+
+            if (!valid) {
+                $$('div.advice-required-entry-checkout_method').each(
+                    function(element) {
+                        $(element).show();
+                    }
+                )
+            }
+        }
+
+        return valid;
+    },
+
+    /**
+     * Shipping Method step validation
+     *
+     * @todo condition validation on non-virtual quotes
+     *
+     * @returns {boolean}
+     */
+    validateShippingMethod: function() {
+        var valid = true;
+        $$('li div.advice-required-entry-shipping_method').each(
+            function(element) {
+                $(element).hide();
+            }
+        );
+
+        if ($$('input[name="shipping_method"]').length > 0) {
+            valid = false;
+            $$('input[name="shipping_method"]').each(
+                function(element) {
+                    if ($(element).checked) {
+                        valid = true;
+                    }
+                }
+            );
+
+            if (!valid) {
+                $$('li div.advice-required-entry-shipping_method').each(
+                    function(element) {
+                        $(element).show();
+                    }
+                );
+            }
+        }
+
+        return valid;
+    },
+
+    /**
+     * Payment Method step validation
+     *
+     * @returns {boolean}
+     */
+    validatePaymentMethod: function() {
+        return true;
+    },
+
+    /**
+     * Shipping Address step validation
+     *
+     * @returns {boolean}
+     */
+    validateBillingAddress: function() {
+        return this.validateAddress('billing');
+    },
+
+    /**
+     * Billing Address step validation
+     *
+     * @returns {boolean}
+     */
+    validateShippingAddress: function() {
+        return this.validateAddress('shipping');
+    },
+
+    /**
+     * Validates the checkout steps
+     *
+     * @param steps an array with elements comprising the checkout step names.
+     *              word capitalized: e.g. BillingAddress, or CheckoutMethod
+     *
+     * @returns {boolean}
+     */
+    validateCheckoutSteps: function(steps) {
+        var step, result = true;
+
+        for (step in steps) {
+            if (steps.hasOwnProperty(step)) {
+                if (this['validate' + steps[step]]) {
+                    result = this['validate' + steps[step]]() && result;
+                }
+            }
+        }
+
+        return result;
+    },
+
+    /**
      * Toggles the display state of loading elements
      *
      * @param element id of the target loader
@@ -108,6 +233,26 @@ Checkout.prototype = {
             Element.show($(element));
         } else if ($(element)) {
             Element.hide($(element));
+        }
+    },
+
+    setResponse: function(response) {
+        var step;
+        if (response.error){
+            if ((typeof response.message) == 'string') {
+                alert(response.message);
+            } else {
+                if (window.billingRegionUpdater) {
+                    billingRegionUpdater.update();
+                }
+                alert(response.message.join("\n"));
+            }
+            return false;
+        }
+        for (step in response.update_step) {
+            if (response.update_step.hasOwnProperty(step) && ($('checkout-load-' + step))) {
+                $('checkout-load-' + step).update(response.update_step[step]);
+            }
         }
     }
 }
@@ -168,6 +313,11 @@ Login.prototype = {
      */
     setMethod: function(event) {
         var value = Event.element(event).value;
+        $$('div.advice-required-entry-checkout_method').each(
+            function(element) {
+                $(element).hide();
+            }
+        )
         this.startLoader();
         var request = new Ajax.Request(
             this.saveMethodsUrl,
@@ -199,6 +349,7 @@ Login.prototype = {
         }
 
     }
+
 }
 
 
@@ -466,10 +617,12 @@ var ShippingMethod = Class.create();
 
 ShippingMethod.prototype = {
     stepContainer: null,
-    initialize: function(id, saveAddressesUrl) {
-        this.stepContainer = $('checkout-step-' + id);
-        this.saveAddressesUrl = saveAddressesUrl || '/checkout/onestep/saveAddresses';
-        this.onSave = this.updateMethods.bindAsEventListener(this);
+    initialize: function(id, saveAddressesUrl, saveShippingMethodUrl) {
+        this.stepContainer         = $('checkout-step-' + id);
+        this.saveAddressesUrl      = saveAddressesUrl || '/checkout/onestep/saveAddresses';
+        this.saveShippingMethodUrl = saveShippingMethodUrl || '/checkout/onestep/saveShippingMethod';
+        this.onUpdate              = this.updateMethods.bindAsEventListener(this);
+        this.onSave                = this.saveMethod.bindAsEventListener(this);
 
         /**
          * Load methods when user clicks this element
@@ -479,13 +632,71 @@ ShippingMethod.prototype = {
             'click',
             this.loadMethods.bindAsEventListener(this)
         );
+        this.addValidationAdvice();
+
+        /**
+         * Observe the customer choice regarding an existing address
+         */
+        $$('input[name="shipping_method"]').each(
+            function(element) {
+                Event.observe(
+                    $(element),
+                    'click',
+                    this.setMethod.bindAsEventListener(this)
+                );
+            }.bind(this)
+        );
     },
 
     /**
+     * Sets the shipping method and posts it to the quote
+     */
+    setMethod: function () {
+
+        var parameters = Form.serialize('co-shipping-method-form');
+
+        $$('li div.advice-required-entry-shipping_method').each(
+            function(element) {
+                $(element).hide();
+            }
+        );
+
+        if (checkout.validateCheckoutSteps(['CheckoutMethod'])) {
+            this.startLoader();
+            var request = new Ajax.Request(
+                this.saveShippingMethodUrl,
+                {
+                    method:     'post',
+                    onComplete: this.stopLoader.bind(this),
+                    onSuccess:  this.onSave,
+                    onFailure:  checkout.ajaxFailure.bind(checkout),
+                    parameters: parameters
+                }
+            );
+        }
+    },
+
+    /**
+     * Actions after a shipping method is successfully posted to the quote
      *
+     * @param transport response from the controller
+     */
+    saveMethod: function(transport){
+        var response = {};
+        if (transport && transport.responseText){
+            response = JSON.parse(transport.responseText);
+        }
+        if (checkout) {
+            checkout.setResponse(response);
+        }
+    },
+
+    /**
+     * Updates the available shipping method selection
      */
     loadMethods: function() {
         this.saveAddresses();
+        this.addValidationAdvice();
     },
 
     /**
@@ -493,19 +704,17 @@ ShippingMethod.prototype = {
      */
     saveAddresses: function() {
         var parameters = {},
-            validB     = false,
-            validS     = false,
             valid      = false;
 
         if ($('shipping:same_as_billing').checked && shipping) {
             shipping.setSameAsBilling(true);
         }
 
+        /**
+         * Validate previous steps, excluding shipping method and payment method
+         */
         if (checkout) {
-            validB = checkout.validateAddress('billing');
-            validS = checkout.validateAddress('shipping');
-            //needed to invoke both validations, hence two extra variables:
-            valid = validB && validS
+            valid = checkout.validateCheckoutSteps(['CheckoutMethod', 'BillingAddress', 'ShippingAddress']);
         }
 
         if (valid) {
@@ -518,7 +727,7 @@ ShippingMethod.prototype = {
                 {
                     method:     'post',
                     onComplete: this.stopLoader.bind(this),
-                    onSuccess:  this.onSave,
+                    onSuccess:  this.onUpdate,
                     onFailure:  checkout.ajaxFailure.bind(checkout),
                     parameters: parameters
                 }
@@ -539,19 +748,8 @@ ShippingMethod.prototype = {
             response = JSON.parse(transport.responseText);
         }
 
-        if (response.error){
-            if ((typeof response.message) == 'string') {
-                alert(response.message);
-            } else {
-                if (window.billingRegionUpdater) {
-                    billingRegionUpdater.update();
-                }
-                alert(response.message.join("\n"));
-            }
-            return false;
-        }
-        if (response.update_step && response.update_step.shipping_method) {
-            $('checkout-shipping-method-load').update(response.update_step.shipping_method);
+        if (checkout) {
+            checkout.setResponse(response);
         }
     },
 
@@ -573,6 +771,29 @@ ShippingMethod.prototype = {
             checkout.toggleLoading('shipping_method-please-wait', true);
         }
 
+    },
+
+    addValidationAdvice: function() {
+        var advice, clone;
+        //destroy already existing elements
+        $$('li div.advice-required-entry-shipping_method').each(
+            function(element) {
+                Element.remove(element);
+            }
+        );
+        if ($('shipping_method-advice-source')) {
+            advice = $('shipping_method-advice-source').firstDescendant();
+            if (advice) {
+
+                $$('input[name="shipping_method"]').each(
+                    function(element) {
+                        clone = Element.clone(advice, true);
+                        $(element).up().appendChild(clone);
+                    }
+                );
+            }
+        }
+
     }
 }
 var Payment = Class.create();
@@ -586,28 +807,82 @@ Payment.prototype = {
     currentMethod:      null,
     form:               null,
 
+    /**
+     * Required initialization
+     *
+     * @param id
+     * @param saveAddressesUrl
+     */
     initialize: function(id, saveAddressesUrl) {
         this.stepContainer = $('checkout-step-' + id);
-        this.form = 'co-payment-form'
+        this.form = 'co-payment-form';
+
+        /**
+         * Load methods when user clicks this element
+         */
+        Event.observe(
+            $('reload-payment-method-button'),
+            'click',
+            this.loadMethods.bindAsEventListener(this)
+        );
+
     },
 
+    loadMethods: function() {
+        this.postCheckoutData();
+    },
+
+    postCheckoutData: function() {
+        var parameters = {},
+            valid      = false;
+
+        if ($('shipping:same_as_billing').checked && shipping) {
+            shipping.setSameAsBilling(true);
+        }
+
+        /**
+         * Validate previous steps, excluding shipping method and payment method
+         */
+        if (checkout) {
+            valid = checkout.validateCheckoutSteps(
+                ['CheckoutMethod', 'BillingAddress', 'ShippingAddress', 'ShippingMethod']
+            );
+        }
+
+        if (valid) {
+
+        }
+    },
+
+    /**
+     * Adds a function to the before init hash
+     *
+     * @param code function name
+     * @param func function itself
+     */
     addBeforeInitFunction : function(code, func) {
         this.beforeInitFunc.set(code, func);
     },
 
+    /**
+     * Invokes the before init functions
+     */
     beforeInit : function() {
-        (this.beforeInitFunc).each(function(init){
-            (init.value)();;
-        });
+        (this.beforeInitFunc).each(
+            function(init) {
+                (init.value)();
+            }
+        );
     },
 
+    /**
+     * Initializaes the payment method selection
+     */
     init : function () {
         this.beforeInit();
-        var elements = Form.getElements(this.form);
-        if ($(this.form)) {
-            $(this.form).observe('submit', function(event){this.save();Event.stop(event);}.bind(this));
-        }
-        var method = null;
+
+        var elements = Form.getElements(this.form), method = null;
+
         for (var i = 0; i < elements.length; i++) {
             if (elements[i].name === 'payment[method]') {
                 if (elements[i].checked) {
@@ -618,16 +893,111 @@ Payment.prototype = {
             }
             elements[i].setAttribute('autocomplete','off');
         }
-        if (method) this.switchMethod(method);
+        if (method) {
+            this.switchMethod(method);
+        }
         this.afterInit();
     },
+
+    /**
+     * Adds a function to the after init hash
+     *
+     * @param code function name
+     * @param func function itself
+     */
+    addAfterInitFunction : function(code, func) {
+        this.afterInitFunc.set(code, func);
+    },
+
+    /**
+     * Invokes the after init functions
+     */
+    afterInit : function() {
+        (this.afterInitFunc).each(
+            function(init) {
+                (init.value)();
+            }
+        );
+    },
+
+    /**
+     * Switches on the selected method, toggles the method form visibility
+     *
+     * @param method method name
+     */
+    switchMethod: function(method) {
+        if (this.currentMethod && $('payment_form_'+this.currentMethod)) {
+            this.changeVisible(this.currentMethod, true);
+            $('payment_form_'+this.currentMethod).fire(
+                'payment-method:switched-off',
+                {method_code : this.currentMethod}
+            );
+        }
+        if ($('payment_form_'+method)) {
+            this.changeVisible(method, false);
+            $('payment_form_'+method).fire('payment-method:switched', {method_code : method});
+        } else {
+            //Event fix for payment methods without form like "Check / Money order"
+            document.body.fire('payment-method:switched', {method_code : method});
+        }
+        if (method) {
+            this.lastUsedMethod = method;
+        }
+        this.currentMethod = method;
+    },
+
+    /**
+     * Toggles visibility of the method's form
+     *
+     * @param method method name
+     * @param mode   toggle flag
+     */
+    changeVisible: function(method, mode) {
+        var block = 'payment_form_' + method;
+        [block + '_before', block, block + '_after'].each(function(el) {
+            element = $(el);
+            if (element) {
+                element.style.display = (mode) ? 'none' : '';
+                element.select('input', 'select', 'textarea', 'button').each(function(field) {
+                    field.disabled = mode;
+                });
+            }
+        });
+    },
+
+    /**
+     * Adds a function to the before validation hash
+     *
+     * @param code function name
+     * @param func function itself
+     */
+    addBeforeValidateFunction : function(code, func) {
+        this.beforeValidateFunc.set(code, func);
+    },
+
+    /**
+     * Invokes the before validation functions
+     *
+     * @returns {boolean}
+     */
+    beforeValidate : function() {
+        var validateResult = true;
+        var hasValidation = false;
+        (this.beforeValidateFunc).each(function(validate){
+            hasValidation = true;
+            if ((validate.value)() == false) {
+                validateResult = false;
+            }
+        }.bind(this));
+        if (!hasValidation) {
+            validateResult = false;
+        }
+        return validateResult;
+    }
+
 }
 
-
-
 var Review         = Class.create(Step);
-
-
 
 var login          = new Login('login'),
     billing        = new Billing('billing'),
@@ -650,3 +1020,7 @@ if (currentPaymentMethod) {
 }
 
 payment.init();
+
+if (switchToMethod) {
+    payment.switchMethod(switchToMethod);
+}

@@ -26,7 +26,7 @@
 <div style="clear: both"></div>
 <div class="onestep-step">
     <form id="co-shipping-method-form" action="">
-        <div id="checkout-shipping-method-load">
+        <div id="checkout-load-shipping_method">
             <?php echo $this->getChildHtml('available') ?>
         </div>
         <div id="reload-shipping-method">
@@ -36,4 +36,9 @@
             <?php echo $this->getChildHtml('additional') ?>
         </div>
     </form>
+</div>
+<div id="shipping_method-advice-source" style="display: none">
+    <div class="validation-advice advice-required-entry-shipping_method" style="display:none">
+        <?php echo Mage::helper('checkout')->__('This is a required field.');?>
+    </div>
 </div>

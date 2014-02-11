@@ -4,6 +4,10 @@
 div.osc li.fields {
     width: 283px;
 }
+
+div.onestep-step {
+    margin-bottom: 20px;
+}
 div.osc-column .step-title {
     font-weight: bold;
     font-size: 16px;

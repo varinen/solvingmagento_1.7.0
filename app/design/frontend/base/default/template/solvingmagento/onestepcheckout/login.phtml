@@ -44,7 +44,10 @@
                             <?php endif; ?>
                             class="radio" />
                         <label for="login:guest"><?php echo $this->__('Checkout as Guest') ?></label>
-                        </li>
+                        <div class="validation-advice advice-required-entry-checkout_method" style="display:none">
+                            <?php echo Mage::helper('checkout')->__('This is a required field.');?>
+                        </div>
+                    </li>
                 <?php endif; ?>
                 <li class="control">
                     <input
@@ -58,6 +61,9 @@
                         <?php endif ?>
                         class="radio" />
                     <label for="login:register"><?php echo $this->__('Register') ?></label>
+                    <div class="validation-advice advice-required-entry-checkout_method" style="display:none">
+                        <?php echo Mage::helper('checkout')->__('This is a required field.');?>
+                    </div>
                 </li>
             </ul>
         <?php else: ?>

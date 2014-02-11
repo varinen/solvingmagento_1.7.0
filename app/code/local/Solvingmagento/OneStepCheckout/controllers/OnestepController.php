@@ -175,4 +175,63 @@ class Solvingmagento_OneStepCheckout_OnestepController extends Mage_Checkout_One
         return $result;
     }
 
+    /**
+     * Shipping method save action
+     */
+    public function saveShippingMethodAction()
+    {
+        if ($this->_expireAjax()) {
+            return;
+        }
+        if ($this->getRequest()->isPost()) {
+            $data = $this->getRequest()->getPost('shipping_method', '');
+            $result = $this->getOnepage()->saveShippingMethod($data);
+            /*
+            $result will have error data if shipping method is empty
+            */
+            if(!$result) {
+                Mage::dispatchEvent('checkout_controller_onepage_save_shipping_method',
+                    array('request'=>$this->getRequest(),
+                        'quote'=>$this->getOnepage()->getQuote()));
+                $this->getOnepage()->getQuote()->collectTotals();
+                $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
+
+                $result['update_step']['payment_method'] = $this->_getPaymentMethodsHtml();
+            }
+            $this->getOnepage()->getQuote()->collectTotals()->save();
+            $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
+        }
+    }
+
+    /**
+     * Get shipping method step html
+     *
+     * @return string
+     */
+    protected function _getShippingMethodsHtml()
+    {
+        $layout = $this->getLayout();
+        $update = $layout->getUpdate();
+        $update->load('checkout_onestep_shippingmethod');
+        $layout->generateXml();
+        $layout->generateBlocks();
+        $output = $layout->getOutput();
+        return $output;
+    }
+
+    /**
+     * Get payment method step html
+     *
+     * @return string
+     */
+    protected function _getPaymentMethodsHtml()
+    {
+        $layout = $this->getLayout();
+        $update = $layout->getUpdate();
+        $update->load('checkout_onepage_paymentmethod');
+        $layout->generateXml();
+        $layout->generateBlocks();
+        $output = $layout->getOutput();
+        return $output;
+    }
 }
