@@ -15,27 +15,38 @@
  *
  */
 ?>
-<form action="" id="co-payment-form">
-    <fieldset>
-        <div id="checkout-load-payment_method">
-            <?php echo $this->getChildHtml('methods') ?>
+<div id="payment_method-please-wait" class="step-please-wait" style="display: none">
+        <span class="please-wait">
+            <img
+                src="<?php echo $this->getSkinUrl('images/opc-ajax-loader.gif') ?>"
+                alt="<?php echo $this->__('Saving data, please wait...') ?>"
+                title="<?php echo $this->__('Saving data, please wait...') ?>" class="v-middle" />
+        </span>
+</div>
+<div style="clear: both"></div>
+<div class="onestep-step">
+    <form action="" id="co-payment-form">
+        <fieldset>
+            <div id="checkout-load-payment_method">
+                <?php echo $this->getChildHtml('methods') ?>
+            </div>
+        </fieldset>
+        <div id="reload-payment-method">
+            <a href="#" id="reload-payment-method-button"><?php echo $this->__('Update payment options');?></a>
         </div>
-    </fieldset>
-    <div id="reload-payment-method">
-        <a href="#" id="reload-payment-method-button"><?php echo $this->__('Update payment options');?></a>
-    </div>
-</form>
-<div class="tool-tip" id="payment-tool-tip" style="display:none;">
-    <div class="btn-close">
-        <a href="#" id="payment-tool-tip-close" title="<?php echo $this->__('Close') ?>">
-            <?php echo $this->__('Close') ?>
-        </a>
-    </div>
-    <div class="tool-tip-content">
-        <img
-            src="<?php echo $this->getSkinUrl('images/cvv.gif') ?>"
-            alt="<?php echo $this->__('Card Verification Number Visual Reference') ?>"
-            title="<?php echo $this->__('Card Verification Number Visual Reference') ?>" />
+    </form>
+    <div class="tool-tip" id="payment-tool-tip" style="display:none;">
+        <div class="btn-close">
+            <a href="#" id="payment-tool-tip-close" title="<?php echo $this->__('Close') ?>">
+                <?php echo $this->__('Close') ?>
+            </a>
+        </div>
+        <div class="tool-tip-content">
+            <img
+                src="<?php echo $this->getSkinUrl('images/cvv.gif') ?>"
+                alt="<?php echo $this->__('Card Verification Number Visual Reference') ?>"
+                title="<?php echo $this->__('Card Verification Number Visual Reference') ?>" />
+        </div>
     </div>
 </div>
 <script type="text/javascript">
