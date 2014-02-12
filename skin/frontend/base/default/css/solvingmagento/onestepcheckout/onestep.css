@@ -71,12 +71,11 @@ div.login-method {
     margin-right: 20px;
 }
 
-#login-please-wait, #shipping_method-please-wait {
+div.step-please-wait {
     float: left;
     margin: 0 15px;
 }
 
-#checkout-step-login > .step-title,
-#checkout-step-shipping_method > .step-title {
+div.step-title {
     float:left;
 }
