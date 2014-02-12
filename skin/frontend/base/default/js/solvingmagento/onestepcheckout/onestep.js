@@ -1,8 +1,106 @@
 var failureUrl = '/checkout/cart/',
     Checkout   = Class.create(),
 //externally set variables:
-    switchToMethod,
+    switchToPaymentMethod,
     currentPaymentMethod;
+
+/**
+ * A base object for checkout method, shipping method, and payment method steps
+ *
+ * @type {{}}
+ */
+var MethodStep = {
+    stepId: null,
+
+    /**
+     * Adds validation advice DOM elements to radio buttons
+     */
+    addValidationAdvice: function() {
+        var advice, clone;
+        //destroy already existing elements
+        $$('li div.advice-required-entry-' + this.stepId).each(
+            function(element) {
+                Element.remove(element);
+            }
+        );
+        if ($(this.stepId + '-advice-source')) {
+            advice = $(this.stepId + '-advice-source').firstDescendant();
+            if (advice) {
+
+                $$('input[name="' +  + this.stepId + '"]').each(
+                    function(element) {
+                        clone = Element.clone(advice, true);
+                        $(element).up().appendChild(clone);
+                    }
+                );
+            }
+        }
+
+    },
+
+    /**
+     * Hides the login step loader
+     */
+    stopLoader: function () {
+        if (checkout) {
+            checkout.toggleLoading(this.stepId + '-please-wait', false);
+        }
+
+    },
+
+    /**
+     * Shows the loging step loader
+     */
+    startLoader: function () {
+        if (checkout) {
+            checkout.toggleLoading(this.stepId + '-please-wait', true);
+        }
+
+    },
+
+    /**
+     * Updates the payment method step with html represeting a selection of available payment methods
+     *
+     * @param transport
+     *
+     * @returns {boolean}
+     */
+    updateMethods: function(transport){
+        var response = {};
+        if (transport && transport.responseText){
+            response = JSON.parse(transport.responseText);
+        }
+        //the response is extected to contain the update HTMl for the payment step
+        if (checkout) {
+            checkout.setResponse(response);
+        }
+    },
+
+    /**
+     * Saves the checkout method to the quote
+     *
+     * @param event
+     */
+    postData: function(postUrl, parameters, validatonAdvice) {
+        $$(validatonAdvice).each(
+            function(element) {
+                $(element).hide();
+            }
+        )
+        this.startLoader();
+        var request = new Ajax.Request(
+            postUrl,
+            {
+                method:     'post',
+                onComplete: this.stopLoader.bind(this),
+                onFailure:  checkout.ajaxFailure.bind(checkout),
+                parameters: parameters
+            }
+        );
+    }
+
+}
+
 
 Checkout.prototype = {
     checkoutContainer: null,
@@ -257,22 +355,6 @@ Checkout.prototype = {
     }
 }
 
-/**
- * Step class
- * @type {*}
- */
-var Step = Class.create();
-
-Step.prototype = {
-    stepContainer: null,
-    initialize: function(id) {
-        this.stepContainer = $('checkout-step-' + id);
-        this.init();
-    },
-    init: function() {
-        return;
-    }
-}
 
 /**
  * Login step class
@@ -283,6 +365,7 @@ var Login = Class.create();
 
 Login.prototype = {
     stepContainer: null,
+    stepId: 'checkout_method',
     /**
      * Required initialization
      *
@@ -300,7 +383,7 @@ Login.prototype = {
                 Event.observe(
                     $(element),
                     'click',
-                    this.setMethod.bindAsEventListener(this)
+                    this.saveMethod.bindAsEventListener(this)
                 );
             }.bind(this)
         );
@@ -311,47 +394,16 @@ Login.prototype = {
      *
      * @param event
      */
-    setMethod: function(event) {
+    saveMethod: function(event) {
         var value = Event.element(event).value;
-        $$('div.advice-required-entry-checkout_method').each(
-            function(element) {
-                $(element).hide();
-            }
-        )
-        this.startLoader();
-        var request = new Ajax.Request(
+        this.postData(
             this.saveMethodsUrl,
-            {
-                method:     'post',
-                onComplete: this.stopLoader.bind(this),
-                onFailure:  checkout.ajaxFailure.bind(checkout),
-                parameters: {checkout_method: value}
-            }
+            {checkout_method: value},
+            'div.advice-required-entry-' + this.stepId
         );
-    },
-
-    /**
-     * Hides the login step loader
-     */
-    stopLoader: function () {
-        if (checkout) {
-            checkout.toggleLoading('login-please-wait', false);
-        }
-
-    },
-
-    /**
-     * Shows the loging step loader
-     */
-    startLoader: function () {
-        if (checkout) {
-            checkout.toggleLoading('login-please-wait', true);
-        }
-
     }
 
 }
-
 
 var Billing = Class.create();
 
@@ -617,12 +669,13 @@ var ShippingMethod = Class.create();
 
 ShippingMethod.prototype = {
     stepContainer: null,
-    initialize: function(id, saveAddressesUrl, saveShippingMethodUrl) {
+    stepId: 'shipping_method',
+    initialize: function(id, getStepUpdateUrl, saveStepData) {
         this.stepContainer         = $('checkout-step-' + id);
-        this.saveAddressesUrl      = saveAddressesUrl || '/checkout/onestep/saveAddresses';
-        this.saveShippingMethodUrl = saveShippingMethodUrl || '/checkout/onestep/saveShippingMethod';
+        this.getStepUpdateUrl      = getStepUpdateUrl || '/checkout/onestep/updateShippingMethods';
+        this.saveShippingMethodUrl = saveStepData || '/checkout/onestep/saveShippingMethod';
         this.onUpdate              = this.updateMethods.bindAsEventListener(this);
-        this.onSave                = this.saveMethod.bindAsEventListener(this);
+        this.onSave                = this.methodSaved.bindAsEventListener(this);
 
         /**
          * Load methods when user clicks this element
@@ -630,19 +683,19 @@ ShippingMethod.prototype = {
         Event.observe(
             $('reload-shipping-method-button'),
             'click',
-            this.loadMethods.bindAsEventListener(this)
+            this.getStepUpdate.bindAsEventListener(this)
         );
         this.addValidationAdvice();
 
         /**
-         * Observe the customer choice regarding an existing address
+         * Post the selected method to the controller
          */
         $$('input[name="shipping_method"]').each(
             function(element) {
                 Event.observe(
                     $(element),
                     'click',
-                    this.setMethod.bindAsEventListener(this)
+                    this.saveMethod.bindAsEventListener(this)
                 );
             }.bind(this)
         );
@@ -651,27 +704,17 @@ ShippingMethod.prototype = {
     /**
      * Sets the shipping method and posts it to the quote
      */
-    setMethod: function () {
-
+    saveMethod: function () {
         var parameters = Form.serialize('co-shipping-method-form');
-
-        $$('li div.advice-required-entry-shipping_method').each(
-            function(element) {
-                $(element).hide();
-            }
-        );
-
-        if (checkout.validateCheckoutSteps(['CheckoutMethod'])) {
-            this.startLoader();
-            var request = new Ajax.Request(
+        if (checkout
+            && checkout.validateCheckoutSteps(
+                ['CheckoutMethod', 'BillingAddress', 'ShippingAddress', 'ShippingMethod']
+            )
+        ) {
+            this.postData(
                 this.saveShippingMethodUrl,
-                {
-                    method:     'post',
-                    onComplete: this.stopLoader.bind(this),
-                    onSuccess:  this.onSave,
-                    onFailure:  checkout.ajaxFailure.bind(checkout),
-                    parameters: parameters
-                }
+                parameters,
+                'li div.advice-required-entry-' + this.stepId
             );
         }
     },
@@ -681,28 +724,22 @@ ShippingMethod.prototype = {
      *
      * @param transport response from the controller
      */
-    saveMethod: function(transport){
+    methodSaved: function(transport){
         var response = {};
         if (transport && transport.responseText){
             response = JSON.parse(transport.responseText);
         }
+        //This will update the payment method selection - available payment methods
+        // depend on the selected shipping method
         if (checkout) {
             checkout.setResponse(response);
         }
     },
 
     /**
-     * Updates the available shipping method selection
-     */
-    loadMethods: function() {
-        this.saveAddresses();
-        this.addValidationAdvice();
-    },
-
-    /**
      * Saves the billing and shipping addresses and gets a valid selection of shipping methods
      */
-    saveAddresses: function() {
+    getStepUpdate: function() {
         var parameters = {},
             valid      = false;
 
@@ -723,7 +760,7 @@ ShippingMethod.prototype = {
             parameters =  Form.serialize('co-billing-form') + '&' + Form.serialize('co-shipping-form');
 
             var request = new Ajax.Request(
-                this.saveAddressesUrl,
+                this.getStepUpdateUrl,
                 {
                     method:     'post',
                     onComplete: this.stopLoader.bind(this),
@@ -733,79 +770,22 @@ ShippingMethod.prototype = {
                 }
             );
         }
-    },
-
-    /**
-     * Updates the shipping method step with html represeting a selection of available shipping methods
-     *
-     * @param transport
-     *
-     * @returns {boolean}
-     */
-    updateMethods: function(transport){
-        var response = {};
-        if (transport && transport.responseText){
-            response = JSON.parse(transport.responseText);
-        }
-
-        if (checkout) {
-            checkout.setResponse(response);
-        }
-    },
-
-    /**
-     * Hides the login step loader
-     */
-    stopLoader: function () {
-        if (checkout) {
-            checkout.toggleLoading('shipping_method-please-wait', false);
-        }
-
-    },
-
-    /**
-     * Shows the loging step loader
-     */
-    startLoader: function () {
-        if (checkout) {
-            checkout.toggleLoading('shipping_method-please-wait', true);
-        }
-
-    },
-
-    addValidationAdvice: function() {
-        var advice, clone;
-        //destroy already existing elements
-        $$('li div.advice-required-entry-shipping_method').each(
-            function(element) {
-                Element.remove(element);
-            }
-        );
-        if ($('shipping_method-advice-source')) {
-            advice = $('shipping_method-advice-source').firstDescendant();
-            if (advice) {
-
-                $$('input[name="shipping_method"]').each(
-                    function(element) {
-                        clone = Element.clone(advice, true);
-                        $(element).up().appendChild(clone);
-                    }
-                );
-            }
-        }
-
     }
 }
 var Payment = Class.create();
 
 Payment.prototype = {
-    beforeInitFunc:     $H({}),
-    afterInitFunc:      $H({}),
-    beforeValidateFunc: $H({}),
-    afterValidateFunc:  $H({}),
-    stepContainer:      null,
-    currentMethod:      null,
-    form:               null,
+    beforeInitFunc:       $H({}),
+    afterInitFunc:        $H({}),
+    beforeValidateFunc:   $H({}),
+    afterValidateFunc:    $H({}),
+    getPaymentMethodsUrl: null,
+    savePaymentMethodUrl: null,
+    stepContainer:        null,
+    currentMethod:        null,
+    form:                 null,
+    getPaymentMethodsUrl: null,
+    stepId: 'payment_method',
 
     /**
      * Required initialization
@@ -813,9 +793,13 @@ Payment.prototype = {
      * @param id
      * @param saveAddressesUrl
      */
-    initialize: function(id, saveAddressesUrl) {
-        this.stepContainer = $('checkout-step-' + id);
-        this.form = 'co-payment-form';
+    initialize: function(id, getPaymentMethodsUrl, savePaymentMethodUrl) {
+        this.stepContainer        = $('checkout-step-' + id);
+        this.form                 = 'co-payment-form';
+        this.getPaymentMethodsUrl = getPaymentMethodsUrl || '/checkout/onestep/updatePaymentMethods';
+        this.savePaymentMethodUrl = savePaymentMethodUrl || '/checkout/onestep/savePaymentMethod';
+        this.onUpdate             = this.updateMethods.bindAsEventListener(this);
+        this.onSave               = this.methodSaved.bindAsEventListener(this);
 
         /**
          * Load methods when user clicks this element
@@ -823,16 +807,23 @@ Payment.prototype = {
         Event.observe(
             $('reload-payment-method-button'),
             'click',
-            this.loadMethods.bindAsEventListener(this)
+            this.getMethods.bindAsEventListener(this)
+        );
+
+
+        $$('input[name="payment_method"]').each(
+            function(element) {
+                Event.observe(
+                    $(element),
+                    'click',
+                    this.saveMethod.bindAsEventListener(this)
+                );
+            }.bind(this)
         );
 
     },
 
-    loadMethods: function() {
-        this.postCheckoutData();
-    },
-
-    postCheckoutData: function() {
+    getMethods: function() {
         var parameters = {},
             valid      = false;
 
@@ -850,7 +841,37 @@ Payment.prototype = {
         }
 
         if (valid) {
+            this.startLoader();
 
+            parameters =  Form.serialize('co-billing-form') +
+                '&' + Form.serialize('co-shipping-form') +
+                '&' + Form.serialize('co-shipping-method-form');
+
+            var request = new Ajax.Request(
+                this.getPaymentMethodsUrl,
+                {
+                    method:     'post',
+                    onComplete: this.stopLoader.bind(this),
+                    onSuccess:  this.onUpdate,
+                    onFailure:  checkout.ajaxFailure.bind(checkout),
+                    parameters: parameters
+                }
+            );
+        }
+    },
+
+    saveMethod: function() {
+        var parameters = Form.serialize('co-payment-method-form');
+        if (checkout
+            && checkout.validateCheckoutSteps(
+                ['CheckoutMethod', 'BillingAddress', 'ShippingAddress', 'ShippingMethod', 'PaymentMethod']
+            )
+         ) {
+            this.postData(
+                this.savePaymentMethodUrl,
+                parameters,
+                'li div.advice-required-entry-' + this.stepId
+            );
         }
     },
 
@@ -876,7 +897,7 @@ Payment.prototype = {
     },
 
     /**
-     * Initializaes the payment method selection
+     * Initializes the payment method selection
      */
     init : function () {
         this.beforeInit();
@@ -993,13 +1014,40 @@ Payment.prototype = {
             validateResult = false;
         }
         return validateResult;
+    },
+
+    methodSaved: function() {
+
+    }
+}
+
+var Review = Class.create();
+
+Review.prototype = {
+    initialize: function(id, getPaymentMethodsUrl) {
+        this.stepContainer = $('checkout-step-' + id);
     }
 
 }
 
-var Review         = Class.create(Step);
+/**
+ * Extend *_method step object prototypes with shared properties
+ */
+for (var property in MethodStep) {
+    if (!Payment.prototype[property]) {
+        Payment.prototype[property] = MethodStep[property];
+    }
+    if (!ShippingMethod.prototype[property]) {
+        ShippingMethod.prototype[property] = MethodStep[property];
+    }
+    if (!Login.prototype[property]) {
+        Login.prototype[property] = MethodStep[property];
+    }
+}
 
-var login          = new Login('login'),
+
+var
+    login          = new Login('login'),
     billing        = new Billing('billing'),
     shipping       = new Shipping('shipping'),
     shippingMethod = new ShippingMethod('shipping_method'),
@@ -1015,12 +1063,15 @@ var login          = new Login('login'),
             'review': review
         }
     );
+
+
+
 if (currentPaymentMethod) {
     payment.currentMethod = currentPaymentMethod;
 }
 
 payment.init();
 
-if (switchToMethod) {
-    payment.switchMethod(switchToMethod);
+if (switchToPaymentMethod) {
+    payment.switchMethod(switchToPamentMethod);
 }
