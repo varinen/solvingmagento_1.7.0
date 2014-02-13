@@ -70,3 +70,8 @@
  var currentPaymentMethod = "<?php echo $this->getChild('methods')->getSelectedMethodCode() ?>";
     //]]>
 </script>
+<div id="payment_method-advice-source" style="display: none">
+    <div class="validation-advice advice-required-entry-payment_method" style="display:none">
+        <?php echo Mage::helper('checkout')->__('This is a required field.');?>
+    </div>
+</div>

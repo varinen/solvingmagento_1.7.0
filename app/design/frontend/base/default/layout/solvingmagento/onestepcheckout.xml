@@ -109,7 +109,7 @@
     </checkout_onestep_shippingmethod>
 
     <!-- defining handle for an ajax payment method update -->
-    <checkout_onepage_paymentmethod>
+    <checkout_onestep_paymentmethod>
         <remove name="right"/>
         <remove name="left"/>
 
@@ -123,6 +123,65 @@
                 <template>payment/form/purchaseorder.phtml</template>
             </action>
         </block>
-    </checkout_onepage_paymentmethod>
+    </checkout_onestep_paymentmethod>
+
+
+    <checkout_onestep_review translate="label">
+        <label>One Step Checkout Overview</label>
+        <!-- Mage_Checkout -->
+        <remove name="right"/>
+        <remove name="left"/>
+
+        <block
+                type="checkout/onepage_review_info"
+                name="root"
+                output="toHtml"
+                template="solvingmagento/onestepcheckout/review/info.phtml">
+            <action method="addItemRender">
+                <type>default</type>
+                <block>checkout/cart_item_renderer</block>
+                <template>checkout/onepage/review/item.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>grouped</type>
+                <block>checkout/cart_item_renderer_grouped</block>
+                <template>checkout/onepage/review/item.phtml</template>
+            </action>
+            <action method="addItemRender">
+                <type>configurable</type>
+                <block>checkout/cart_item_renderer_configurable</block>
+                <template>checkout/onepage/review/item.phtml</template>
+            </action>
+            <block
+                    type="checkout/cart_totals"
+                    name="checkout.onestep.review.info.totals"
+                    as="totals"
+                    template="checkout/onepage/review/totals.phtml"/>
+            <block
+                    type="core/text_list"
+                    name="checkout.onepage.review.info.items.before"
+                    as="items_before"
+                    translate="label">
+                <label>Items Before</label>
+            </block>
+            <block
+                    type="core/text_list"
+                    name="checkout.onestep.review.info.items.after"
+                    as="items_after"
+                    translate="label">
+                <label>Items After</label>
+            </block>
+            <block
+                    type="checkout/agreements"
+                    name="checkout.onestep.agreements"
+                    as="agreements"
+                    template="checkout/onepage/agreements.phtml"/>
+            <block
+                    type="core/template"
+                    name="checkout.onestep.review.button"
+                    as="button"
+                    template="checkout/onepage/review/button.phtml"/>
+        </block>
+    </checkout_onestep_review>
 
 </layout>

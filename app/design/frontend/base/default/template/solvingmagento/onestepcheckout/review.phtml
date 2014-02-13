@@ -15,6 +15,17 @@
  *
  */
 ?>
-<div class="order-review" id="checkout-review-load">
+<div id="review-please-wait" class="step-please-wait" style="display: none">
+        <span class="please-wait">
+            <img
+                src="<?php echo $this->getSkinUrl('images/opc-ajax-loader.gif') ?>"
+                alt="<?php echo $this->__('Saving data, please wait...') ?>"
+                title="<?php echo $this->__('Saving data, please wait...') ?>" class="v-middle" />
+        </span>
+</div>
+<div style="clear: both">
+    <a href="#_"  id="checkout-review-update"><?php echo Mage::helper('checkout')->__('Update order review');?></a>
+</div>
+<div class="order-review" id="checkout-load-review">
     <?php echo $this->getChildHtml('info') ?>
 </div>
