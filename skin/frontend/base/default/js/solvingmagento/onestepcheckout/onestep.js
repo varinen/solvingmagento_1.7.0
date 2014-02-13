@@ -94,10 +94,16 @@ var MethodStep = {
                 method:     'post',
                 onComplete: this.stopLoader.bind(this),
                 onFailure:  checkout.ajaxFailure.bind(checkout),
+                onSuccess:  this.onSave,
                 parameters: parameters
             }
         );
+    },
+
+    methodSaved: function() {
+
     }
+
 
 }
 
@@ -270,16 +276,42 @@ Checkout.prototype = {
 
         return valid;
     },
-
     /**
      * Payment Method step validation
      *
      * @returns {boolean}
      */
     validatePaymentMethod: function() {
-        return true;
-    },
+        var valid = true;
+        $$('dt div.advice-required-entry-payment_method').each(
+            function(element) {
+                $(element).hide();
+            }
+        );
 
+        if ($$('input[name="payment[method]"]').length > 0) {
+            valid = false;
+            $$('input[name="payment[method]"]').each(
+                function(element) {
+                    if ($(element).checked) {
+                        valid = true;
+                    }
+                }
+            );
+
+            if (!valid) {
+                $$('dt div.advice-required-entry-payment_method').each(
+                    function(element) {
+                        $(element).show();
+                    }
+                );
+            }
+        }
+
+        var validator = new Validation('co-payment-form');
+
+        return valid && validator.validate();
+    },
     /**
      * Shipping Address step validation
      *
@@ -347,6 +379,12 @@ Checkout.prototype = {
             }
             return false;
         }
+
+        if (response.redirect) {
+            location.href = response.redirect;
+            return true;
+        }
+
         for (step in response.update_step) {
             if (response.update_step.hasOwnProperty(step) && ($('checkout-load-' + step))) {
                 $('checkout-load-' + step).update(response.update_step[step]);
@@ -373,7 +411,8 @@ Login.prototype = {
      */
     initialize: function(id, saveMethodUrl) {
         this.saveMethodsUrl = saveMethodUrl || '/checkout/onestep/saveMethod';
-        this.stepContainer = $('checkout-step-' + id);
+        this.onSave         = this.methodSaved.bindAsEventListener(this);
+        this.stepContainer  = $('checkout-step-' + id);
 
         /**
          * Observe the customer choice regarding an existing address
@@ -810,16 +849,7 @@ Payment.prototype = {
             this.getMethods.bindAsEventListener(this)
         );
 
-
-        $$('input[name="payment_method"]').each(
-            function(element) {
-                Event.observe(
-                    $(element),
-                    'click',
-                    this.saveMethod.bindAsEventListener(this)
-                );
-            }.bind(this)
-        );
+        this.addValidationAdvice();
 
     },
 
@@ -872,6 +902,42 @@ Payment.prototype = {
                 parameters,
                 'li div.advice-required-entry-' + this.stepId
             );
+        }
+    },
+
+    /**
+     * Actions after a shipping method is successfully posted to the quote
+     *
+     * @param transport response from the controller
+     */
+    methodSaved: function(transport){
+        var response = {};
+        if (transport && transport.responseText){
+            response = JSON.parse(transport.responseText);
+        }
+
+        /*
+         * if there is an error in payment, need to show error message
+         */
+        if (response.error) {
+            if (response.fields) {
+                var fields = response.fields.split(',');
+                for (var i=0;i<fields.length;i++) {
+                    var field = null;
+                    if (field = $(fields[i])) {
+                        Validation.ajaxError(field, response.error);
+                    }
+                }
+                return;
+            }
+            alert(response.error);
+            return;
+        }
+
+        //This will update the payment method selection - available payment methods
+        // depend on the selected shipping method
+        if (checkout) {
+            checkout.setResponse(response);
         }
     },
 
@@ -1018,14 +1084,92 @@ Payment.prototype = {
 
     methodSaved: function() {
 
-    }
+    },
+
+    /**
+     * Adds validation advice DOM elements to radio buttons
+     */
+    addValidationAdvice: function() {
+        var advice, clone;
+        //destroy already existing elements
+        $$('dt div.advice-required-entry-' + this.stepId).each(
+            function(element) {
+                Element.remove(element);
+            }
+        );
+        if ($(this.stepId + '-advice-source')) {
+            advice = $(this.stepId + '-advice-source').firstDescendant();
+            if (advice) {
+
+                $$('input[name="payment[method]"]').each(
+                    function(element) {
+                        clone = Element.clone(advice, true);
+                        $(element).up().appendChild(clone);
+                    }
+                );
+            }
+        }
+
+    },
 }
 
 var Review = Class.create();
 
 Review.prototype = {
-    initialize: function(id, getPaymentMethodsUrl) {
-        this.stepContainer = $('checkout-step-' + id);
+    getStepUpdateUrl: null,
+    stepId: 'review',
+    initialize: function(id, getStepUpdateUrl) {
+        this.stepContainer    = $('checkout-step-' + id);
+        this.getStepUpdateUrl = getStepUpdateUrl || '/checkout/onestep/updateOrderReview';
+        this.onUpdate         = this.updateMethods.bindAsEventListener(this);
+        Event.observe($('checkout-review-update'), 'click', this.updateReview.bindAsEventListener(this, false));
+    },
+
+    updateReview: function(event, noValidation) {
+        var parameters = {},
+            valid      = false;
+
+        noValidation = !!noValidation;
+
+        if ($('shipping:same_as_billing').checked && shipping) {
+            shipping.setSameAsBilling(true);
+        }
+
+        /**
+         * Validate previous steps, excluding shipping method and payment method
+         */
+        if (checkout) {
+            if (!noValidation) {
+                valid = checkout.validateCheckoutSteps(
+                    ['CheckoutMethod', 'BillingAddress', 'ShippingAddress', 'ShippingMethod', 'PaymentMethod']
+                );
+            } else {
+                valid = true;
+            }
+        }
+
+        if (valid) {
+            this.startLoader();
+
+            parameters =  Form.serialize('co-billing-form')
+                + '&' + Form.serialize('co-shipping-form')
+                + '&' + Form.serialize('co-shipping-method-form')
+                + '&' + Form.serialize('co-payment-form');
+
+            var request = new Ajax.Request(
+                this.getStepUpdateUrl,
+                {
+                    method:     'post',
+                    onComplete: this.stopLoader.bind(this),
+                    onSuccess:  this.onUpdate,
+                    onFailure:  checkout.ajaxFailure.bind(checkout),
+                    parameters: parameters
+                }
+            );
+        }
+
+        return false;
+
     }
 
 }
@@ -1042,6 +1186,10 @@ for (var property in MethodStep) {
     }
     if (!Login.prototype[property]) {
         Login.prototype[property] = MethodStep[property];
+    }
+
+    if (!Review.prototype[property]) {
+        Review.prototype[property] = MethodStep[property];
     }
 }
 
@@ -1075,3 +1223,5 @@ payment.init();
 if (switchToPaymentMethod) {
     payment.switchMethod(switchToPamentMethod);
 }
+
+review.updateReview(this, true);
