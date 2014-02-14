@@ -1,3 +1,7 @@
+.checkout-clear-both {
+    clear: both;
+}
+
 #checkoutStepsPreload {
     display: none;
 }
@@ -78,4 +82,8 @@ div.step-please-wait {
 
 div.step-title {
     float:left;
+}
+
+div.checkout-review-update-container {
+    margin-bottom: 10px;
 }

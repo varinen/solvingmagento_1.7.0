@@ -91,7 +91,13 @@
                         type="slvmto_onestepc/onestep_review"
                         name="checkout.onestep.review"
                         as="review"
-                        template="solvingmagento/onestepcheckout/review.phtml"/>
+                        template="solvingmagento/onestepcheckout/review.phtml">
+                    <block
+                            type="core/template"
+                            name="checkout.onestep.review.button"
+                            as="button"
+                            template="solvingmagento/onestepcheckout/review/button.phtml"/>
+                </block>
             </block>
         </reference>
     </checkout_onestep_index>
@@ -134,7 +140,7 @@
 
         <block
                 type="checkout/onepage_review_info"
-                name="root"
+                name="checkout.review"
                 output="toHtml"
                 template="solvingmagento/onestepcheckout/review/info.phtml">
             <action method="addItemRender">
@@ -176,11 +182,6 @@
                     name="checkout.onestep.agreements"
                     as="agreements"
                     template="checkout/onepage/agreements.phtml"/>
-            <block
-                    type="core/template"
-                    name="checkout.onestep.review.button"
-                    as="button"
-                    template="checkout/onepage/review/button.phtml"/>
         </block>
     </checkout_onestep_review>
 

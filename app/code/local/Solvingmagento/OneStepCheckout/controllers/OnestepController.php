@@ -213,7 +213,9 @@ class Solvingmagento_OneStepCheckout_OnestepController extends Mage_Checkout_One
 
                 $result['update_step']['payment_method'] = $this->_getPaymentMethodsHtml();
             }
-            $this->getOnepage()->getQuote()->collectTotals()->save();
+            $this->getOnestep()->getQuote()->collectTotals()->save();
+
+            $result['update_step']['review'] = $this->_getReviewHtml();
             $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
         }
     }
@@ -329,7 +331,6 @@ class Solvingmagento_OneStepCheckout_OnestepController extends Mage_Checkout_One
 
             $this->savePayment($paymentMethod, false);
 
-            $this->loadLayout('checkout_onestep_review');
             $result['update_step']['review'] = $this->_getReviewHtml();
         }
         $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
@@ -400,5 +401,22 @@ class Solvingmagento_OneStepCheckout_OnestepController extends Mage_Checkout_One
             }
         }
         return $result;
+    }
+
+    /**
+     * Get order review step html
+     *
+     * @return string
+     */
+    protected function _getReviewHtml()
+    {
+        $layout = $this->getLayout();
+        $layout->getUpdate()
+            ->addHandle('checkout_onestep_review')
+            ->merge('checkout_onestep_review');
+        $layout->generateXml()
+            ->generateBlocks();
+        $output = $this->getLayout()->getBlock('checkout.review')->toHtml();
+        return $output;
     }
 }
