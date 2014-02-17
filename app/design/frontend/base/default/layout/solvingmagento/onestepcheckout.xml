@@ -109,7 +109,7 @@
         <remove name="left"/>
         <block
                 type="checkout/onepage_shipping_method_available"
-                name="root"
+                name="checkout.shipping.methods"
                 output="toHtml"
                 template="solvingmagento/onestepcheckout/shipping_method/available.phtml"/>
     </checkout_onestep_shippingmethod>
@@ -121,7 +121,7 @@
 
         <block
                 type="checkout/onepage_payment_methods"
-                name="root"
+                name="checkout.payment.methods"
                 output="toHtml"
                 template="solvingmagento/onestepcheckout/payment/methods.phtml">
             <action method="setMethodFormTemplate">
@@ -184,5 +184,15 @@
                     template="checkout/onepage/agreements.phtml"/>
         </block>
     </checkout_onestep_review>
+
+    <checkout_onestep_success translate="label">
+        <label>One Step Checkout Success</label>
+        <reference name="root">
+            <action method="setTemplate"><template>page/2columns-right.phtml</template></action>
+        </reference>
+        <reference name="content">
+            <block type="checkout/onepage_success" name="checkout.success" template="checkout/success.phtml"/>
+        </reference>
+    </checkout_onestep_success>
 
 </layout>

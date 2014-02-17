@@ -87,3 +87,8 @@ div.step-title {
 div.checkout-review-update-container {
     margin-bottom: 10px;
 }
+
+#review-submit-please-wait {
+    float: left;
+    margin: 10px;
+}

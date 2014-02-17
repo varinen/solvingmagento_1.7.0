@@ -45,4 +45,14 @@ Login.prototype = {
             'div.advice-required-entry-' + this.stepId
         );
     }
+};
+
+
+/**
+ * Extend *_method step object prototypes with shared properties
+ */
+for (var property in MethodStep) {
+    if (!Login.prototype[property]) {
+        Login.prototype[property] = MethodStep[property];
+    }
 }

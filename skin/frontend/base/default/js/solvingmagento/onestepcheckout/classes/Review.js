@@ -4,11 +4,13 @@ Review.prototype = {
     readyToSave: false,
     getStepUpdateUrl: null,
     stepId: 'review',
-    initialize: function(id, getStepUpdateUrl, submitOrderUrl) {
+    initialize: function(id, getStepUpdateUrl, submitOrderUrl, successUrl) {
         this.stepContainer    = $('checkout-step-' + id);
         this.getStepUpdateUrl = getStepUpdateUrl || '/checkout/onestep/updateOrderReview';
         this.submitOrderUrl   = submitOrderUrl  || '/checkout/onestep/submitOrder';
+        this.successUrl       = successUrl || '/checkout/onestep/success';
         this.onUpdate         = this.reviewUpdated.bindAsEventListener(this);
+        this.onSuccess        = this.orderSubmitAfter.bindAsEventListener(this);
         this.readyToSave      = false;
 
         // update the review without validating previous steps
@@ -112,5 +114,68 @@ Review.prototype = {
         if (checkout) {
             checkout.setResponse(response);
         }
+    },
+
+    /**
+     * Shows the loging step loader
+     */
+    startLoader: function () {
+        $('order_submit_button').disable();
+        $('review-submit-please-wait').show();
+        if (checkout) {
+            $('order_submit_button').down().down().update(checkout.buttonWaitText);
+            checkout.toggleLoading(this.stepId + '-please-wait', true);
+        }
+
+    },
+
+    /**
+     * Hides the login step loader
+     */
+    stopLoader: function () {
+        $('order_submit_button').enable();
+        $('review-submit-please-wait').hide();
+
+        if (checkout) {
+            checkout.toggleLoading(this.stepId + '-please-wait', false);
+        }
+
+    },
+
+    /**
+     * Processes the controller response to the submit order request
+     *
+     * @param transport
+     */
+    orderSubmitAfter: function(transport){
+        var response = {};
+        if (transport && transport.responseText){
+            response = JSON.parse(transport.responseText);
+        }
+        if (response.success) {
+            this.isSuccess = true;
+            window.location=this.successUrl;
+        } else {
+            this.stopLoader();
+            this.readyToSave = false;
+            if ($('order_submit_button')) {
+                $('order_submit_button').title = checkout.buttonUpdateText;
+                $('order_submit_button').down().down().update(checkout.buttonUpdateText);
+            }
+        }
+        if (checkout) {
+            checkout.setResponse(response);
+        }
+    }
+};
+
+
+/**
+ * Extend *_method step object prototypes with shared properties
+ */
+for (var property in MethodStep) {
+    if (!Review.prototype[property]) {
+        Review.prototype[property] = MethodStep[property];
     }
 }
+

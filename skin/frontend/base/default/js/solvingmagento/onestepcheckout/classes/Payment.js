@@ -298,4 +298,14 @@ Payment.prototype = {
         }
 
     }
+};
+
+
+/**
+ * Extend *_method step object prototypes with shared properties
+ */
+for (var property in MethodStep) {
+    if (!Payment.prototype[property]) {
+        Payment.prototype[property] = MethodStep[property];
+    }
 }

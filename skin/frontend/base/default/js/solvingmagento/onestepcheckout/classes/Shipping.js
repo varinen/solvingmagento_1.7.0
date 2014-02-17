@@ -58,6 +58,8 @@ Shipping.prototype = {
             function(event) {
                 if (Event.element(event).checked) {
                     this.setSameAsBilling(true);
+                    $('billing:use_for_shipping_yes').checked = true;
+                    $('billing:use_for_shipping_no').checked  = false;
                 }
             }.bind(this)
         );
@@ -78,12 +80,15 @@ Shipping.prototype = {
                     value = !!parseInt(element.value);
                     var billingId = element.id.replace(/^shipping/, 'billing');
                     if (!$(billingId).checked) {
-                        $('shipping:same_as_billing').checked = false;
+                        $('shipping:same_as_billing').checked     = false;
+                        $('billing:use_for_shipping_yes').checked = false;
+                        $('billing:use_for_shipping_no').checked  = true;
                     }
                 }
             }
         );
-        if (!value) {
+        //undefined value means no selection for shipping_address_id, also no "New Address - hide form
+        if (!value && value !== undefined) {
             //   $('shipping:same_as_billing').checked = false;
             Element.show('shipping-new-address-form');
         } else {

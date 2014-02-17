@@ -17,29 +17,6 @@ var Checkout,
             'review': review
         }
     );
-
-
-/**
- * Extend *_method step object prototypes with shared properties
- */
-for (var property in MethodStep) {
-    if (!Payment.prototype[property]) {
-        Payment.prototype[property] = MethodStep[property];
-    }
-    if (!ShippingMethod.prototype[property]) {
-        ShippingMethod.prototype[property] = MethodStep[property];
-    }
-    if (!Login.prototype[property]) {
-        Login.prototype[property] = MethodStep[property];
-    }
-
-    if (!Review.prototype[property]) {
-        Review.prototype[property] = MethodStep[property];
-    }
-}
-
-
-
 if (currentPaymentMethod) {
     payment.currentMethod = currentPaymentMethod;
 }

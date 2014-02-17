@@ -62,6 +62,159 @@ class Solvingmagento_OneStepCheckout_OnestepController extends Mage_Checkout_One
     }
 
     /**
+     * Saves address data
+     *
+     * @param array  $data       an array containing address form data
+     * @param int    $addressId  an ID of an existing address (for logged in customers only)
+     * @param string $type       billing or shipping
+     * @param bool   $response   allows writing an error result directly to to the controller response
+     *
+     * @return array|bool
+     */
+    protected function saveAddressData($data, $addressId, $type, $response = true)
+    {
+        $type = strtolower($type);
+
+        if ($type != 'shipping' && $type != 'billing') {
+            $result = array('error' => 1, 'message' => Mage::helper('checkout')->__('Error saving checkout data'));
+            if ($response) {
+                $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
+                return false;
+            } else {
+                return $result;
+            }
+        }
+        $method = 'save' . ucwords($type);
+        $result = $this->getOnestep()->$method($data, $addressId);
+
+        if (isset($result['error'])) {
+            if ($response) {
+                $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
+                return false;
+            }
+
+        }
+        return $result;
+    }
+
+    /**
+     * Get shipping method step html
+     *
+     * @return string
+     */
+    protected function _getShippingMethodsHtml()
+    {
+        $layout = $this->getLayout();
+        $layout->getUpdate()
+            ->addHandle('checkout_onestep_shippingmethod')
+            ->merge('checkout_onestep_shippingmethod');
+        $layout->generateXml();
+        $layout->generateBlocks();
+        $output = $layout->getOutput();
+        return $output;
+    }
+
+    /**
+     * Get payment method step html
+     *
+     * @return string
+     */
+    protected function _getPaymentMethodsHtml()
+    {
+        $layout = $this->getLayout();
+        $layout->getUpdate()
+            ->addHandle('checkout_onestep_paymentmethod')
+            ->merge('checkout_onestep_paymentmethod');
+        $layout->generateXml();
+        $layout->generateBlocks();
+        $output = $layout->getOutput();
+        return $output;
+    }
+
+    /**
+     * Get order review step html
+     *
+     * @return string
+     */
+    protected function _getReviewHtml()
+    {
+        $layout = $this->getLayout();
+        $layout->getUpdate()
+            ->addHandle('checkout_onestep_review')
+            ->merge('checkout_onestep_review');
+        $layout->generateXml()
+            ->generateBlocks();
+        $output = $this->getLayout()->getBlock('checkout.review')->toHtml();
+        return $output;
+    }
+
+    /**
+     * Save the selected shipping method to the quote
+     *
+     * @param string $shippingMethod code of the selected shipping method
+     * @param bool   $response       allows writing of an error result directly to the response
+     *
+     * @return array|bool
+     */
+    protected function saveShippingMethodData($shippingMethod, $response = true)
+    {
+        $result = $this->getOnestep()->saveShippingMethod($shippingMethod);
+
+        if (isset($result['error'])) {
+            if ($response) {
+                $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
+                return false;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Saves payment data to the quote
+     *
+     * @param array $data      payment data
+     * @param bool  $response allows writing of an error result directly to the response
+     *
+     * @return array|bool
+     */
+    protected function savePayment($data, $response = true)
+    {
+        $result = array();
+
+        try {
+            $result = $this->getOnestep()->savePayment($data);
+
+            // get section and redirect data
+            $redirectUrl = $this->getOnestep()->getQuote()->getPayment()->getCheckoutRedirectUrl();
+            if ($redirectUrl) {
+                $result['redirect'] = $redirectUrl;
+            }
+        } catch (Mage_Payment_Exception $e) {
+            if ($e->getFields()) {
+                $result['fields'] = $e->getFields();
+            }
+            $result['error']   = 1;
+            $resutl['message'] = $e->getMessage();
+        } catch (Mage_Core_Exception $e) {
+            $result['error']   = 1;
+            $result['message'] = $e->getMessage();
+        } catch (Exception $e) {
+            Mage::logException($e);
+            $result['error']   = 1;
+            $result['message'] = $this->__('Unable to set Payment Method.');
+        }
+
+        if (isset($result['error'])) {
+            if ($response) {
+                $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
+                return false;
+            }
+        }
+        return $result;
+    }
+
+    /**
      * Checkout page
      */
     public function indexAction()
@@ -155,42 +308,6 @@ class Solvingmagento_OneStepCheckout_OnestepController extends Mage_Checkout_One
     }
 
     /**
-     * Saves address data
-     *
-     * @param array  $data       an array containing address form data
-     * @param int    $addressId  an ID of an existing address (for logged in customers only)
-     * @param string $type       billing or shipping
-     * @param bool   $response   allows writing an error result directly to to the controller response
-     *
-     * @return array|bool
-     */
-    protected function saveAddressData($data, $addressId, $type, $response = true)
-    {
-        $type = strtolower($type);
-
-        if ($type != 'shipping' && $type != 'billing') {
-            $result = array('error' => 1, 'message' => Mage::helper('checkout')->__('Error saving checkout data'));
-            if ($response) {
-                $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
-                return false;
-            } else {
-                return $result;
-            }
-        }
-        $method = 'save' . ucwords($type);
-        $result = $this->getOnestep()->$method($data, $addressId);
-
-        if (isset($result['error'])) {
-            if ($response) {
-                $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
-                return false;
-            }
-
-        }
-        return $result;
-    }
-
-    /**
      * Shipping method save action
      */
     public function saveShippingMethodAction()
@@ -219,39 +336,6 @@ class Solvingmagento_OneStepCheckout_OnestepController extends Mage_Checkout_One
             $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
         }
     }
-
-    /**
-     * Get shipping method step html
-     *
-     * @return string
-     */
-    protected function _getShippingMethodsHtml()
-    {
-        $layout = $this->getLayout();
-        $update = $layout->getUpdate();
-        $update->load('checkout_onestep_shippingmethod');
-        $layout->generateXml();
-        $layout->generateBlocks();
-        $output = $layout->getOutput();
-        return $output;
-    }
-
-    /**
-     * Get payment method step html
-     *
-     * @return string
-     */
-    protected function _getPaymentMethodsHtml()
-    {
-        $layout = $this->getLayout();
-        $update = $layout->getUpdate();
-        $update->load('checkout_onestep_paymentmethod');
-        $layout->generateXml();
-        $layout->generateBlocks();
-        $output = $layout->getOutput();
-        return $output;
-    }
-
 
     /**
      * Updates the availbale selection of payment methods by saving address and shipping  method data first
@@ -292,7 +376,6 @@ class Solvingmagento_OneStepCheckout_OnestepController extends Mage_Checkout_One
         $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
 
     }
-
 
     /**
      * Updates the order review step by attempting to save the current checkout state
@@ -336,87 +419,127 @@ class Solvingmagento_OneStepCheckout_OnestepController extends Mage_Checkout_One
         $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
     }
 
-
     /**
-     * Save the selected shipping method to the quote
-     *
-     * @param string $shippingMethod code of the selected shipping method
-     * @param bool   $response       allows writing of an error result directly to the response
-     *
-     * @return array|bool
+     * Submits all step data, checks for errors, saves order
      */
-    protected function saveShippingMethodData($shippingMethod, $response = true)
-    {
-        $result = $this->getOnestep()->saveShippingMethod($shippingMethod);
-
-        if (isset($result['error'])) {
-            if ($response) {
-                $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
-                return false;
-            }
+    public function submitOrderAction() {
+        if ($this->_expireAjax()) {
+            return;
         }
 
-        return $result;
-    }
+        $post   = $this->getRequest()->getPost();
+        $result = array('error' => 1, 'message' => Mage::helper('checkout')->__('Error saving checkout data'));
 
-    /**
-     * Saves payment data to the quote
-     *
-     * @param array $data      payment data
-     * @param bool  $response allows writing of an error result directly to the response
-     *
-     * @return array|bool
-     */
-    protected function savePayment($data, $response = true)
-    {
-        $result = array();
+        if ($post) {
+            try {
+                if ($requiredAgreements = Mage::helper('checkout')->getRequiredAgreementIds()) {
+                    $postedAgreements = array_keys($this->getRequest()->getPost('agreement', array()));
+                    if ($diff = array_diff($requiredAgreements, $postedAgreements)) {
+                        $result['success'] = false;
+                        $result['error']   = true;
+                        $result['message'] = $this->__(
+                            'Please agree to all the terms and conditions before placing the order.'
+                        );
+                        $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
+                        return;
+                    }
+                }
 
-        try {
-            $result = $this->getOnestep()->savePayment($data);
+                $result            = array();
+                $billing           = $post['billing'];
+                $shipping          = $post['shipping'];
+                $usingCase         = isset($billing['use_for_shipping']) ? (int) $billing['use_for_shipping'] : 0;
+                $billingAddressId  = isset($post['billing_address_id']) ? (int) $post['billing_address_id'] : false;
+                $shippingAddressId = isset($post['shipping_address_id']) ? (int) $post['shipping_address_id'] : false;
+                $shippingMethod    = $this->getRequest()->getPost('shipping_method', '');
+                $paymentMethod     = isset($post['payment']) ? $post['payment'] : array();
 
-            // get section and redirect data
-            $redirectUrl = $this->getOnestep()->getQuote()->getPayment()->getCheckoutRedirectUrl();
-            if ($redirectUrl) {
+                $results = array();
+
+                $results[] = $this->saveAddressData($billing, $billingAddressId, 'billing', false);
+
+                if ($usingCase <= 0) {
+                    $results[] = $this->saveAddressData($shipping, $shippingAddressId, 'shipping', false);
+                }
+
+                $results[] = $this->saveShippingMethodData($shippingMethod, false);
+
+                $results[] = $this->savePayment($paymentMethod, false);
+
+                if ($data = $this->getRequest()->getPost('payment', false)) {
+                    $this->getOnepage()->getQuote()->getPayment()->importData($data);
+                }
+
+                foreach ($results as $stepResult) {
+                    if (isset($stepResult['error'])) {
+                        $result['error'] = 1;
+                        if (!isset($result['message'])) {
+                            $result['message'] = array();
+                        }
+                        if (isset($stepResult['message'])) {
+                            if (is_array($stepResult['message'])) {
+                                $result['message'] = array_merge($result['message'], $stepResult['message']);
+                            } else {
+                                $result['message'][] = $stepResult['message'];
+                            }
+                        }
+                    }
+                }
+                if (isset($result['error'])) {
+                    if ($result['message']) {
+                        throw new Mage_Core_Exception(implode("\n", $result['message']));
+                    }
+                }
+                $this->getOnestep()->saveOrder();
+                $result['success'] = 1;
+
+
+                $redirectUrl = $this->getOnepage()->getCheckout()->getRedirectUrl();
+
+            } catch (Mage_Payment_Model_Info_Exception $e) {
+
+                $result['success'] = false;
+                $result['error'] = 1;
+                $message = $e->getMessage();
+                if( !empty($message) ) {
+                    $result['message'] = $message;
+                }
+
+            } catch (Mage_Core_Exception $e) {
+                Mage::logException($e);
+                Mage::helper('checkout')->sendPaymentFailedEmail($this->getOnepage()->getQuote(), $e->getMessage());
+
+                $result['success'] = false;
+                $result['error']   = true;
+                $result['message'] = $e->getMessage();
+
+            } catch (Exception $e) {
+                Mage::logException($e);
+                Mage::helper('checkout')->sendPaymentFailedEmail($this->getOnepage()->getQuote(), $e->getMessage());
+                $result['success'] = false;
+                $result['error']   = true;
+                $result['message'] = $this->__(
+                    'There was an error processing your order. Please contact us or try again later.'
+                );
+            }
+
+            /**
+             * Update the steps if tehre is an error
+             */
+            $result['update_step']['shipping_method'] = $this->_getShippingMethodsHtml();
+            $result['update_step']['payment_method']  = $this->_getPaymentMethodsHtml();
+
+            $this->getOnepage()->getQuote()->save();
+            /**
+             * when there is redirect to third party, we don't want to save order yet.
+             * we will save the order in return action.
+             */
+            if (isset($redirectUrl)) {
                 $result['redirect'] = $redirectUrl;
             }
-        } catch (Mage_Payment_Exception $e) {
-            if ($e->getFields()) {
-                $result['fields'] = $e->getFields();
-            }
-            $result['error']   = 1;
-            $resutl['message'] = $e->getMessage();
-        } catch (Mage_Core_Exception $e) {
-            $result['error']   = 1;
-            $result['message'] = $e->getMessage();
-        } catch (Exception $e) {
-            Mage::logException($e);
-            $result['error']   = 1;
-            $result['message'] = $this->__('Unable to set Payment Method.');
+
         }
 
-        if (isset($result['error'])) {
-            if ($response) {
-                $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
-                return false;
-            }
-        }
-        return $result;
-    }
-
-    /**
-     * Get order review step html
-     *
-     * @return string
-     */
-    protected function _getReviewHtml()
-    {
-        $layout = $this->getLayout();
-        $layout->getUpdate()
-            ->addHandle('checkout_onestep_review')
-            ->merge('checkout_onestep_review');
-        $layout->generateXml()
-            ->generateBlocks();
-        $output = $this->getLayout()->getBlock('checkout.review')->toHtml();
-        return $output;
+        $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
     }
 }

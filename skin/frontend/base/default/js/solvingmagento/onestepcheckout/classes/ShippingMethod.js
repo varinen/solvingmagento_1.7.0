@@ -68,8 +68,8 @@ ShippingMethod.prototype = {
         if (transport && transport.responseText){
             response = JSON.parse(transport.responseText);
         }
-        //This will update the payment method selection - available payment methods
-        // depend on the selected shipping method
+        //This will update the shipping method selection - available shipping methods
+        // depend on the selected shipping address
         if (checkout) {
             checkout.setResponse(response);
         }
@@ -127,7 +127,9 @@ ShippingMethod.prototype = {
         if (checkout) {
             checkout.setResponse(response);
         }
+    },
 
+    methodsUpdated: function () {
         this.addValidationAdvice();
 
         /**
@@ -142,5 +144,16 @@ ShippingMethod.prototype = {
                 );
             }.bind(this)
         );
+    }
+};
+
+
+
+/**
+ * Extend *_method step object prototypes with shared properties
+ */
+for (var property in MethodStep) {
+    if (!ShippingMethod.prototype[property]) {
+        ShippingMethod.prototype[property] = MethodStep[property];
     }
 }

@@ -15,17 +15,31 @@
  *
  */
 ?>
-<button
-    type="button"
-    title="<?php echo $this->__('Update order before placing');?>"
-    class="button btn-checkout"
-    id="order_submit_button">
-    <span><span><?php echo $this->__('Update order before placing') ?></span></span>
+
+<div style="float:right">
+    <div id="review-submit-please-wait" style="display: none">
+        <span>
+            <img
+                src="<?php echo $this->getSkinUrl('images/opc-ajax-loader.gif') ?>"
+                alt="<?php echo $this->__('Saving data, please wait...') ?>"
+                title="<?php echo $this->__('Saving data, please wait...') ?>" class="v-middle" />
+        </span>
+    </div>
+    <button
+        type="button"
+        title="<?php echo $this->__('Update order before placing');?>"
+        class="button btn-checkout"
+        id="order_submit_button">
+
+        <span><span><?php echo $this->__('Update order before placing') ?></span></span>
     </button>
+
+</div>
 
 <script type="text/javascript">
     //<![CDATA[
     var buttonUpdateText = '<?php echo $this->__('Update order before placing') ?>',
-        buttonSaveText = '<?php echo $this->__('Place order') ?>';
+        buttonSaveText = '<?php echo $this->__('Place order') ?>',
+        buttonWaitText = '<?php echo $this->__('Please wait...') ?>';
         //]]>
 </script>

@@ -2,7 +2,8 @@ var failureUrl = '/checkout/cart/',
     Checkout   = Class.create(),
 //externally set variables:
     buttonUpdateText,
-    buttonSaveText;
+    buttonSaveText,
+    buttonWaitText;
 
 Checkout.prototype = {
     checkoutContainer: null,
@@ -11,6 +12,7 @@ Checkout.prototype = {
     columnRight: null,
     buttonUpdateText: '',
     buttonUpdateText: '',
+    buttonWaitText: '',
     steps: {},
     stepNames: ['login','billing', 'shipping', 'shipping_method', 'payment', 'review'],
     initialize: function (steps) {
@@ -24,6 +26,7 @@ Checkout.prototype = {
         //localized values can be set in the review/button.phtml template
         this.buttonUpdateText = buttonUpdateText || 'Update order before placing';
         this.buttonSaveText   = buttonSaveText || 'Place order';
+        this.buttonWaitText   = buttonWaitText || 'Please wait...';
 
         this.moveTo(this.steps['login'], 'up');
         this.moveTo(this.steps['billing'], 'left');
@@ -41,9 +44,13 @@ Checkout.prototype = {
 
         this.moveTo(this.steps['payment'], 'right');
 
-        /**
-         * Any change to the checkout inputs will replace the submit order button with the order preview button
-         */
+        this.observeChanges();
+
+    },
+    /**
+     * Any change to the checkout inputs will replace the submit order button with the order preview button
+     */
+    observeChanges: function () {
         $$('div.osc-column-wrapper input').each(
             function(element) {
                 Event.observe(
@@ -316,7 +323,7 @@ Checkout.prototype = {
 
     setResponse: function(response) {
         var step;
-        if (response.error){
+        if (response.error) {
             if ((typeof response.message) == 'string') {
                 alert(response.message);
             } else {
@@ -325,10 +332,7 @@ Checkout.prototype = {
                 }
                 alert(response.message.join("\n"));
             }
-            return false;
-        }
-
-        if (response.redirect) {
+        } else if (response.redirect) {
             location.href = response.redirect;
             return true;
         }
@@ -337,6 +341,19 @@ Checkout.prototype = {
             if (response.update_step.hasOwnProperty(step) && ($('checkout-load-' + step))) {
                 $('checkout-load-' + step).update(response.update_step[step]);
             }
+
+            /**
+             * Add validation advice and register click handlers on the newly loaded elements
+             */
+            if (step === 'shipping_method' && shippingMethod) {
+                shippingMethod.methodsUpdated();
+            }
+
+            if (step === 'payment_method' && payment) {
+                payment.addValidationAdvice()();
+            }
         }
+
+        this.observeChanges();
     }
 }
