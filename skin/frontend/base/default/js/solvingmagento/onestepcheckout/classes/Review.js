@@ -41,7 +41,8 @@ Review.prototype = {
             parameters = Form.serialize('co-billing-form')
                 + '&' + Form.serialize('co-shipping-form')
                 + '&' + Form.serialize('co-shipping-method-form')
-                + '&' + Form.serialize('co-payment-form');
+                + '&' + Form.serialize('co-payment-form')
+                + '&' + Form.serialize('checkout-agreements');
 
             var request = new Ajax.Request(
                 postUrl,

@@ -97,6 +97,11 @@
                             name="checkout.onestep.review.button"
                             as="button"
                             template="solvingmagento/onestepcheckout/review/button.phtml"/>
+                    <block
+                            type="checkout/agreements"
+                            name="checkout.onestep.agreements"
+                            as="agreements"
+                            template="checkout/onepage/agreements.phtml"/>
                 </block>
             </block>
         </reference>
@@ -177,11 +182,6 @@
                     translate="label">
                 <label>Items After</label>
             </block>
-            <block
-                    type="checkout/agreements"
-                    name="checkout.onestep.agreements"
-                    as="agreements"
-                    template="checkout/onepage/agreements.phtml"/>
         </block>
     </checkout_onestep_review>
 

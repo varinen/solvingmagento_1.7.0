@@ -350,7 +350,10 @@ Checkout.prototype = {
             }
 
             if (step === 'payment_method' && payment) {
-                payment.addValidationAdvice()();
+                payment.addValidationAdvice();
+                if (payment.currentMethod) {
+                    payment.switchMethod(payment.currentMethod);
+                }
             }
         }
 

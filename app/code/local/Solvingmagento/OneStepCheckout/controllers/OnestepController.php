@@ -104,7 +104,8 @@ class Solvingmagento_OneStepCheckout_OnestepController extends Mage_Checkout_One
      */
     protected function _getShippingMethodsHtml()
     {
-        $layout = $this->getLayout();
+        $layout = Mage::getModel('core/layout');
+//        $layout = $this->getLayout();
         $layout->getUpdate()
             ->addHandle('checkout_onestep_shippingmethod')
             ->merge('checkout_onestep_shippingmethod');
@@ -121,7 +122,8 @@ class Solvingmagento_OneStepCheckout_OnestepController extends Mage_Checkout_One
      */
     protected function _getPaymentMethodsHtml()
     {
-        $layout = $this->getLayout();
+        $layout = Mage::getModel('core/layout');
+        //$layout = $this->getLayout();
         $layout->getUpdate()
             ->addHandle('checkout_onestep_paymentmethod')
             ->merge('checkout_onestep_paymentmethod');
@@ -138,13 +140,14 @@ class Solvingmagento_OneStepCheckout_OnestepController extends Mage_Checkout_One
      */
     protected function _getReviewHtml()
     {
-        $layout = $this->getLayout();
+        $layout = Mage::getModel('core/layout');
+        //$layout = $this->getLayout();
         $layout->getUpdate()
             ->addHandle('checkout_onestep_review')
             ->merge('checkout_onestep_review');
         $layout->generateXml()
             ->generateBlocks();
-        $output = $this->getLayout()->getBlock('checkout.review')->toHtml();
+        $output = $layout->getBlock('checkout.review')->toHtml();
         return $output;
     }
 
@@ -523,11 +526,14 @@ class Solvingmagento_OneStepCheckout_OnestepController extends Mage_Checkout_One
                 );
             }
 
-            /**
-             * Update the steps if tehre is an error
-             */
-            $result['update_step']['shipping_method'] = $this->_getShippingMethodsHtml();
-            $result['update_step']['payment_method']  = $this->_getPaymentMethodsHtml();
+            if ((!isset($result['success'])) || (isset($result['success']) && $result['success'] == false)) {
+                /**
+                 * Update the steps if tehre is an error
+                 */
+                $result['update_step']['shipping_method'] = $this->_getShippingMethodsHtml();
+                $result['update_step']['payment_method']  = $this->_getPaymentMethodsHtml();
+            }
+
 
             $this->getOnepage()->getQuote()->save();
             /**
