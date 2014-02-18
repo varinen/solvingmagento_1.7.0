@@ -36,6 +36,12 @@ Billing.prototype = {
                 );
             }.bind(this)
         );
+
+        if ($('login:register') && $('login:register').checked) {
+            if ($('register-customer-password')) {
+                $('register-customer-password').show();
+            }
+        }
     },
 
     /**

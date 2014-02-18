@@ -4,6 +4,7 @@ Review.prototype = {
     readyToSave: false,
     getStepUpdateUrl: null,
     stepId: 'review',
+    forms: [],
     initialize: function(id, getStepUpdateUrl, submitOrderUrl, successUrl) {
         this.stepContainer    = $('checkout-step-' + id);
         this.getStepUpdateUrl = getStepUpdateUrl || '/checkout/onestep/updateOrderReview';
@@ -12,6 +13,13 @@ Review.prototype = {
         this.onUpdate         = this.reviewUpdated.bindAsEventListener(this);
         this.onSuccess        = this.orderSubmitAfter.bindAsEventListener(this);
         this.readyToSave      = false;
+        this.forms            = [
+            'co-billing-form',
+            'co-shipping-form',
+            'co-shipping-method-form',
+            'co-payment-form',
+            'checkout-agreements'
+        ];
 
         // update the review without validating previous steps
         Event.observe($('checkout-review-update'), 'click', this.updateReview.bindAsEventListener(this, false));
@@ -21,9 +29,11 @@ Review.prototype = {
     },
 
     submit: function(event) {
-        var parameters = {},
-            postUrl    = this.getStepUpdateUrl,
-            onSuccess  = this.onUpdate;
+        var parameters = '',
+            postUrl   = this.getStepUpdateUrl,
+            onSuccess = this.onUpdate,
+            i;
+
 
         /**
          * Submit order instead of upating only
@@ -38,11 +48,22 @@ Review.prototype = {
 
             this.readyToSave = true;
 
-            parameters = Form.serialize('co-billing-form')
-                + '&' + Form.serialize('co-shipping-form')
-                + '&' + Form.serialize('co-shipping-method-form')
-                + '&' + Form.serialize('co-payment-form')
-                + '&' + Form.serialize('checkout-agreements');
+            for (i = 0; i < this.forms.length; i += 1) {
+                if ($(this.forms[i])) {
+                    parameters += '&' + Form.serialize(this.forms[i]);
+                }
+            }
+
+            if (login && login.stepContainer) {
+                var checkoutMethod = 'register';
+                $$('input[name="checkout_method"]').each(function(element) {
+                   if ($(element).checked) {
+                       checkoutMethod = $(element).value;
+                   }
+                });
+                parameters += '&checkout_method=' + checkoutMethod;
+            }
+            parameters = parameters.substr(1);
 
             var request = new Ajax.Request(
                 postUrl,
@@ -58,8 +79,9 @@ Review.prototype = {
     },
 
     updateReview: function(event, noValidation) {
-        var parameters = {},
-            valid      = false;
+        var parameters = '',
+            i,
+            valid = false;
 
         noValidation = !!noValidation;
 
@@ -68,10 +90,13 @@ Review.prototype = {
         if (valid) {
             this.startLoader();
 
-            parameters =  Form.serialize('co-billing-form')
-                + '&' + Form.serialize('co-shipping-form')
-                + '&' + Form.serialize('co-shipping-method-form')
-                + '&' + Form.serialize('co-payment-form');
+            for (i = 0; i < this.forms.length; i += 1) {
+                if ($(this.forms[i])) {
+                    parameters += '&' + Form.serialize(this.forms[i]);
+                }
+            }
+
+            parameters = parameters.substr(1);
 
             var request = new Ajax.Request(
                 this.getStepUpdateUrl,

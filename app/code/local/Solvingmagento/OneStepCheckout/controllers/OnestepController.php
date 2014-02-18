@@ -29,6 +29,31 @@ require_once 'Mage/Checkout/controllers/OnepageController.php';
 class Solvingmagento_OneStepCheckout_OnestepController extends Mage_Checkout_OnepageController
 {
     /**
+     * Check if a guest can proceed to the checkout
+     *
+     * @return boolean
+     */
+    protected function _canShowForUnregisteredUsers()
+    {
+        $guestAllowed = Mage::getSingleton('customer/session')->isLoggedIn()
+            || Mage::helper('checkout')->isAllowedGuestCheckout($this->getOnestep()->getQuote())
+            || !Mage::helper('checkout')->isCustomerMustBeLogged();
+
+        if (!$guestAllowed) {
+            Mage::getSingleton('customer/session')->addError(
+                Mage::helper('checkout')->__('Please login or register to continue to the checkout')
+            );
+            $this->_redirect('customer/account/edit');
+            $this->setFlag('', self::FLAG_NO_DISPATCH, true);
+            //return true to the caller method _preDispatch so that it doesn't redirect to the 404 page
+            return true;
+        } else {
+            return true;
+        }
+
+    }
+
+    /**
      * Validate ajax request and redirect on failure
      *
      * @return bool
@@ -62,7 +87,7 @@ class Solvingmagento_OneStepCheckout_OnestepController extends Mage_Checkout_One
     }
 
     /**
-     * Saves address data
+     * Saves address data (billing or shipping)
      *
      * @param array  $data       an array containing address form data
      * @param int    $addressId  an ID of an existing address (for logged in customers only)
@@ -105,7 +130,6 @@ class Solvingmagento_OneStepCheckout_OnestepController extends Mage_Checkout_One
     protected function _getShippingMethodsHtml()
     {
         $layout = Mage::getModel('core/layout');
-//        $layout = $this->getLayout();
         $layout->getUpdate()
             ->addHandle('checkout_onestep_shippingmethod')
             ->merge('checkout_onestep_shippingmethod');
@@ -123,7 +147,6 @@ class Solvingmagento_OneStepCheckout_OnestepController extends Mage_Checkout_One
     protected function _getPaymentMethodsHtml()
     {
         $layout = Mage::getModel('core/layout');
-        //$layout = $this->getLayout();
         $layout->getUpdate()
             ->addHandle('checkout_onestep_paymentmethod')
             ->merge('checkout_onestep_paymentmethod');
@@ -141,7 +164,6 @@ class Solvingmagento_OneStepCheckout_OnestepController extends Mage_Checkout_One
     protected function _getReviewHtml()
     {
         $layout = Mage::getModel('core/layout');
-        //$layout = $this->getLayout();
         $layout->getUpdate()
             ->addHandle('checkout_onestep_review')
             ->merge('checkout_onestep_review');
@@ -262,7 +284,7 @@ class Solvingmagento_OneStepCheckout_OnestepController extends Mage_Checkout_One
         }
         if ($this->getRequest()->isPost()) {
             $method = $this->getRequest()->getPost('checkout_method');
-            $result = $this->getOnepage()->saveCheckoutMethod($method);
+            $result = $this->getOnestep()->saveCheckoutMethod($method);
             $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
         }
     }
@@ -327,8 +349,8 @@ class Solvingmagento_OneStepCheckout_OnestepController extends Mage_Checkout_One
             if (!isset($result['error'])) {
                 Mage::dispatchEvent('checkout_controller_onepage_save_shipping_method',
                     array('request'=>$this->getRequest(),
-                        'quote'=>$this->getOnepage()->getQuote()));
-                $this->getOnepage()->getQuote()->collectTotals();
+                        'quote'=>$this->getOnestep()->getQuote()));
+                $this->getOnestep()->getQuote()->collectTotals();
                 $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
 
                 $result['update_step']['payment_method'] = $this->_getPaymentMethodsHtml();
@@ -341,7 +363,7 @@ class Solvingmagento_OneStepCheckout_OnestepController extends Mage_Checkout_One
     }
 
     /**
-     * Updates the availbale selection of payment methods by saving address and shipping  method data first
+     * Updates the available selection of payment methods by saving address and shipping  method data first
      */
     public function updatePaymentMethodsAction()
     {
@@ -377,7 +399,6 @@ class Solvingmagento_OneStepCheckout_OnestepController extends Mage_Checkout_One
             }
         }
         $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
-
     }
 
     /**
@@ -413,7 +434,9 @@ class Solvingmagento_OneStepCheckout_OnestepController extends Mage_Checkout_One
                 $this->saveAddressData($shipping, $shippingAddressId, 'shipping', false);
             }
 
-            $this->saveShippingMethodData($shippingMethod, false);
+            if (!$this->getOnestep()->getQuote()->isVirtual()) {
+                $this->saveShippingMethodData($shippingMethod, false);
+            }
 
             $this->savePayment($paymentMethod, false);
 
@@ -430,8 +453,12 @@ class Solvingmagento_OneStepCheckout_OnestepController extends Mage_Checkout_One
             return;
         }
 
-        $post   = $this->getRequest()->getPost();
-        $result = array('error' => 1, 'message' => Mage::helper('checkout')->__('Error saving checkout data'));
+        $redirectUrl = null;
+        $post        = $this->getRequest()->getPost();
+        $result      = array(
+            'error' => 1,
+            'message' => Mage::helper('checkout')->__('Error saving checkout data')
+        );
 
         if ($post) {
             try {
@@ -459,18 +486,25 @@ class Solvingmagento_OneStepCheckout_OnestepController extends Mage_Checkout_One
 
                 $results = array();
 
+                $method = $this->getRequest()->getPost('checkout_method');
+                if ($method) {
+                    $results[] = $this->getOnestep()->saveCheckoutMethod($method);
+                }
+
                 $results[] = $this->saveAddressData($billing, $billingAddressId, 'billing', false);
 
                 if ($usingCase <= 0) {
                     $results[] = $this->saveAddressData($shipping, $shippingAddressId, 'shipping', false);
                 }
 
-                $results[] = $this->saveShippingMethodData($shippingMethod, false);
+                if (!$this->getOnestep()->getQuote()->isVirtual()) {
+                    $results[] = $this->saveShippingMethodData($shippingMethod, false);
+                }
 
                 $results[] = $this->savePayment($paymentMethod, false);
 
                 if ($data = $this->getRequest()->getPost('payment', false)) {
-                    $this->getOnepage()->getQuote()->getPayment()->importData($data);
+                    $this->getOnestep()->getQuote()->getPayment()->importData($data);
                 }
 
                 foreach ($results as $stepResult) {
@@ -497,7 +531,7 @@ class Solvingmagento_OneStepCheckout_OnestepController extends Mage_Checkout_One
                 $result['success'] = 1;
 
 
-                $redirectUrl = $this->getOnepage()->getCheckout()->getRedirectUrl();
+                $redirectUrl = $this->getOnestep()->getCheckout()->getRedirectUrl();
 
             } catch (Mage_Payment_Model_Info_Exception $e) {
 
@@ -510,7 +544,7 @@ class Solvingmagento_OneStepCheckout_OnestepController extends Mage_Checkout_One
 
             } catch (Mage_Core_Exception $e) {
                 Mage::logException($e);
-                Mage::helper('checkout')->sendPaymentFailedEmail($this->getOnepage()->getQuote(), $e->getMessage());
+                Mage::helper('checkout')->sendPaymentFailedEmail($this->getOnestep()->getQuote(), $e->getMessage());
 
                 $result['success'] = false;
                 $result['error']   = true;
@@ -518,7 +552,7 @@ class Solvingmagento_OneStepCheckout_OnestepController extends Mage_Checkout_One
 
             } catch (Exception $e) {
                 Mage::logException($e);
-                Mage::helper('checkout')->sendPaymentFailedEmail($this->getOnepage()->getQuote(), $e->getMessage());
+                Mage::helper('checkout')->sendPaymentFailedEmail($this->getOnestep()->getQuote(), $e->getMessage());
                 $result['success'] = false;
                 $result['error']   = true;
                 $result['message'] = $this->__(
@@ -535,14 +569,16 @@ class Solvingmagento_OneStepCheckout_OnestepController extends Mage_Checkout_One
             }
 
 
-            $this->getOnepage()->getQuote()->save();
+            $this->getOnestep()->getQuote()->save();
+
             /**
              * when there is redirect to third party, we don't want to save order yet.
              * we will save the order in return action.
              */
-            if (isset($redirectUrl)) {
+            if (!empty($redirectUrl)) {
                 $result['redirect'] = $redirectUrl;
             }
+
 
         }
 

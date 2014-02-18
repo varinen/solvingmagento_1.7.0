@@ -5,6 +5,9 @@ ShippingMethod.prototype = {
     stepId: 'shipping_method',
     initialize: function(id, getStepUpdateUrl, saveStepData) {
         this.stepContainer         = $('checkout-step-' + id);
+        if (!this.stepContainer) {
+            return;
+        }
         this.getStepUpdateUrl      = getStepUpdateUrl || '/checkout/onestep/updateShippingMethods';
         this.saveShippingMethodUrl = saveStepData || '/checkout/onestep/saveShippingMethod';
         this.onUpdate              = this.updateMethods.bindAsEventListener(this);

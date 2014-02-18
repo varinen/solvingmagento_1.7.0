@@ -38,12 +38,11 @@ Checkout.prototype = {
             && this.steps['shipping'].stepContainer.visible()
             ) {
             this.moveTo(this.steps['shipping_method'], 'right');
+            this.moveTo(this.steps['payment'], 'right');
         } else {
             this.moveTo(this.steps['shipping_method'], 'center');
+            this.moveTo(this.steps['payment'], 'center');
         }
-
-        this.moveTo(this.steps['payment'], 'right');
-
         this.observeChanges();
 
     },
@@ -100,6 +99,14 @@ Checkout.prototype = {
 
         if (type  !== 'billing' && type !== 'shipping') {
             return false;
+        }
+        if (!window[type]) {
+            return false;
+        }
+
+        if (!window[type].stepContainer) {
+            //the step is not shown, no validation required
+            return true;
         }
         var validationResult         = false,
             newAddressFormValidation = false,
@@ -267,7 +274,7 @@ Checkout.prototype = {
      */
     validateReview: function(validateSteps) {
         var valid = false;
-        if ($('shipping:same_as_billing').checked && shipping) {
+        if ($('shipping:same_as_billing') && $('shipping:same_as_billing').checked && shipping) {
             shipping.setSameAsBilling(true);
         }
 

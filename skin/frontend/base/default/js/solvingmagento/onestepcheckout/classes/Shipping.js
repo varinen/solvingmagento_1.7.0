@@ -10,6 +10,9 @@ Shipping.prototype = {
      */
     initialize: function(id) {
         this.stepContainer = $('checkout-step-' + id);
+        if (!this.stepContainer) {
+            return;
+        }
         /**
          * Observe the customer choice regarding an existing address
          */
