@@ -117,7 +117,6 @@ class Solvingmagento_OneStepCheckout_OnestepController extends Mage_Checkout_One
                 $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
                 return false;
             }
-
         }
         return $result;
     }
@@ -191,6 +190,7 @@ class Solvingmagento_OneStepCheckout_OnestepController extends Mage_Checkout_One
                 return false;
             }
         }
+        $this->getOnestep()->getQuote()->getShippingAddress()->setCollectShippingRates(true);
 
         return $result;
     }
@@ -198,7 +198,7 @@ class Solvingmagento_OneStepCheckout_OnestepController extends Mage_Checkout_One
     /**
      * Saves payment data to the quote
      *
-     * @param array $data      payment data
+     * @param array $data     payment data
      * @param bool  $response allows writing of an error result directly to the response
      *
      * @return array|bool
@@ -236,6 +236,7 @@ class Solvingmagento_OneStepCheckout_OnestepController extends Mage_Checkout_One
                 return false;
             }
         }
+
         return $result;
     }
 
@@ -347,15 +348,20 @@ class Solvingmagento_OneStepCheckout_OnestepController extends Mage_Checkout_One
             $result will have error data if shipping method is empty
             */
             if (!isset($result['error'])) {
-                Mage::dispatchEvent('checkout_controller_onepage_save_shipping_method',
-                    array('request'=>$this->getRequest(),
-                        'quote'=>$this->getOnestep()->getQuote()));
-                $this->getOnestep()->getQuote()->collectTotals();
+                Mage::dispatchEvent(
+                    'checkout_controller_onepage_save_shipping_method',
+                    array(
+                        'request' => $this->getRequest(),
+                        'quote'   => $this->getOnestep()->getQuote()
+                    )
+                );
                 $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
 
                 $result['update_step']['payment_method'] = $this->_getPaymentMethodsHtml();
             }
-            $this->getOnestep()->getQuote()->collectTotals()->save();
+            //update totals
+            $this->getOnestep()->getQuote()->getShippingAddress()->setCollectShippingRates(true);
+            $this->getOnestep()->getQuote()->setTotalsCollectedFlag(false)->collectTotals()->save();
 
             $result['update_step']['review'] = $this->_getReviewHtml();
             $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
@@ -439,6 +445,9 @@ class Solvingmagento_OneStepCheckout_OnestepController extends Mage_Checkout_One
             }
 
             $this->savePayment($paymentMethod, false);
+
+            //update totals
+            $this->getOnestep()->getQuote()->setTotalsCollectedFlag(false)->collectTotals()->save();
 
             $result['update_step']['review'] = $this->_getReviewHtml();
         }
@@ -530,7 +539,6 @@ class Solvingmagento_OneStepCheckout_OnestepController extends Mage_Checkout_One
                 $this->getOnestep()->saveOrder();
                 $result['success'] = 1;
 
-
                 $redirectUrl = $this->getOnestep()->getCheckout()->getRedirectUrl();
 
             } catch (Mage_Payment_Model_Info_Exception $e) {
@@ -568,7 +576,6 @@ class Solvingmagento_OneStepCheckout_OnestepController extends Mage_Checkout_One
                 $result['update_step']['payment_method']  = $this->_getPaymentMethodsHtml();
             }
 
-
             $this->getOnestep()->getQuote()->save();
 
             /**
@@ -578,8 +585,6 @@ class Solvingmagento_OneStepCheckout_OnestepController extends Mage_Checkout_One
             if (!empty($redirectUrl)) {
                 $result['redirect'] = $redirectUrl;
             }
-
-
         }
 
         $this->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
