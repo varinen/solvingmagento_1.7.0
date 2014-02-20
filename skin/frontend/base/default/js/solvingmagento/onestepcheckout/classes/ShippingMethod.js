@@ -1,9 +1,31 @@
-var ShippingMethod = Class.create();
+var
+    //Prototype objects
+    $,
+    $$,
+    Ajax,
+    Class,
+    Event,
+    Form,
+    //external object
+    MethodStep,
+    checkout,
+    //Create the constructor
+    ShippingMethod = Class.create(),
+    property;
 
 ShippingMethod.prototype = {
     stepContainer: null,
     stepId: 'shipping_method',
-    initialize: function(id, getStepUpdateUrl, saveStepData) {
+    /**
+     * Required initialization
+     *
+     * @param id
+     * @param getStepUpdateUrl
+     * @param saveStepData
+     */
+    initialize: function (id, getStepUpdateUrl, saveStepData) {
+        'use strict';
+
         this.stepContainer         = $('checkout-step-' + id);
         if (!this.stepContainer) {
             return;
@@ -28,7 +50,7 @@ ShippingMethod.prototype = {
          * Post the selected method to the controller
          */
         $$('input[name="shipping_method"]').each(
-            function(element) {
+            function (element) {
                 Event.observe(
                     $(element),
                     'click',
@@ -42,17 +64,19 @@ ShippingMethod.prototype = {
      * Sets the shipping method and posts it to the quote
      */
     saveMethod: function () {
+        'use strict';
+
         var parameters = Form.serialize('co-shipping-method-form');
 
-        if ($('shipping:same_as_billing').checked && shipping) {
-            shipping.setSameAsBilling(true);
+        if ($('shipping:same_as_billing').checked && checkout.steps.shipping) {
+            checkout.steps.shipping.setSameAsBilling(true);
         }
 
         if (checkout
-            && checkout.validateCheckoutSteps(
-            ['CheckoutMethod', 'BillingAddress', 'ShippingAddress', 'ShippingMethod']
-        )
-            ) {
+                && checkout.validateCheckoutSteps(
+                    ['CheckoutMethod', 'BillingAddress', 'ShippingAddress', 'ShippingMethod']
+                )
+                ) {
             this.postData(
                 this.saveShippingMethodUrl,
                 parameters,
@@ -66,9 +90,11 @@ ShippingMethod.prototype = {
      *
      * @param transport response from the controller
      */
-    methodSaved: function(transport){
+    methodSaved: function (transport) {
+        'use strict';
+
         var response = {};
-        if (transport && transport.responseText){
+        if (transport && transport.responseText) {
             response = JSON.parse(transport.responseText);
         }
         //This will update the shipping method selection - available shipping methods
@@ -81,12 +107,15 @@ ShippingMethod.prototype = {
     /**
      * Saves the billing and shipping addresses and gets a valid selection of shipping methods
      */
-    getStepUpdate: function() {
-        var parameters = {},
+    getStepUpdate: function () {
+        'use strict';
+
+        var request,
+            parameters = {},
             valid      = false;
 
-        if ($('shipping:same_as_billing').checked && shipping) {
-            shipping.setSameAsBilling(true);
+        if ($('shipping:same_as_billing').checked && checkout.steps.shipping) {
+            checkout.steps.shipping.setSameAsBilling(true);
         }
 
         /**
@@ -101,7 +130,7 @@ ShippingMethod.prototype = {
 
             parameters =  Form.serialize('co-billing-form') + '&' + Form.serialize('co-shipping-form');
 
-            var request = new Ajax.Request(
+            request = new Ajax.Request(
                 this.getStepUpdateUrl,
                 {
                     method:     'post',
@@ -111,6 +140,10 @@ ShippingMethod.prototype = {
                     parameters: parameters
                 }
             );
+            //placate jslint
+            if (request.nothing === undefined) {
+                request.nothing = 0;
+            }
         }
     },
 
@@ -121,9 +154,12 @@ ShippingMethod.prototype = {
      *
      * @returns {boolean}
      */
-    updateMethods: function(transport){
+    updateMethods: function (transport) {
+        'use strict';
+
         var response = {};
-        if (transport && transport.responseText){
+
+        if (transport && transport.responseText) {
             response = JSON.parse(transport.responseText);
         }
         //the response is extected to contain the update HTMl for the payment step
@@ -133,13 +169,15 @@ ShippingMethod.prototype = {
     },
 
     methodsUpdated: function () {
+        'use strict';
+
         this.addValidationAdvice();
 
         /**
          * Post the selected method to the controller
          */
         $$('input[name="shipping_method"]').each(
-            function(element) {
+            function (element) {
                 Event.observe(
                     $(element),
                     'click',
@@ -151,12 +189,13 @@ ShippingMethod.prototype = {
 };
 
 
-
 /**
  * Extend *_method step object prototypes with shared properties
  */
-for (var property in MethodStep) {
-    if (!ShippingMethod.prototype[property]) {
-        ShippingMethod.prototype[property] = MethodStep[property];
+for (property in MethodStep) {
+    if (MethodStep.hasOwnProperty(property)) {
+        if (!ShippingMethod.prototype[property]) {
+            ShippingMethod.prototype[property] = MethodStep[property];
+        }
     }
 }
