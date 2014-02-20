@@ -1,3 +1,13 @@
+var
+    //Prototype objects
+    $,
+    $$,
+    Ajax,
+    Element,
+    //external object
+    checkout;
+
+
 /**
  * A base object for checkout method, shipping method, and payment method steps
  *
@@ -9,11 +19,13 @@ var MethodStep = {
     /**
      * Adds validation advice DOM elements to radio buttons
      */
-    addValidationAdvice: function() {
+    addValidationAdvice: function () {
+        'use strict';
+
         var advice, clone;
         //destroy already existing elements
         $$('li div.advice-required-entry-' + this.stepId).each(
-            function(element) {
+            function (element) {
                 Element.remove(element);
             }
         );
@@ -21,8 +33,8 @@ var MethodStep = {
             advice = $(this.stepId + '-advice-source').firstDescendant();
             if (advice) {
 
-                $$('input[name="' +  + this.stepId + '"]').each(
-                    function(element) {
+                $$('input[name="' + this.stepId + '"]').each(
+                    function (element) {
                         clone = Element.clone(advice, true);
                         $(element).up().appendChild(clone);
                     }
@@ -36,6 +48,8 @@ var MethodStep = {
      * Hides the login step loader
      */
     stopLoader: function () {
+        'use strict';
+
         if (checkout) {
             checkout.toggleLoading(this.stepId + '-please-wait', false);
         }
@@ -46,6 +60,8 @@ var MethodStep = {
      * Shows the loging step loader
      */
     startLoader: function () {
+        'use strict';
+
         if (checkout) {
             checkout.toggleLoading(this.stepId + '-please-wait', true);
         }
@@ -57,13 +73,17 @@ var MethodStep = {
      *
      * @param event
      */
-    postData: function(postUrl, parameters, validatonAdvice) {
+    postData: function (postUrl, parameters, validatonAdvice) {
+        'use strict';
+
         $$(validatonAdvice).each(
-            function(element) {
+            function (element) {
                 $(element).hide();
             }
-        )
+        );
+
         this.startLoader();
+
         var request = new Ajax.Request(
             postUrl,
             {
@@ -74,10 +94,20 @@ var MethodStep = {
                 parameters: parameters
             }
         );
+        //placate jslint
+        if (request.nothing === undefined) {
+            request.nothing = 0;
+        }
     },
 
-    methodSaved: function() {
-
+    /**
+     * Placeholder handler for the method saved event
+     */
+    methodSaved: function () {
+        'use strict';
+        if (this.nothing === undefined) {
+            this.nothing = 0;
+        }
     },
 
     /**
@@ -87,9 +117,11 @@ var MethodStep = {
      *
      * @returns {boolean}
      */
-    updateMethods: function(transport){
+    updateMethods: function (transport) {
+        'use strict';
+
         var response = {};
-        if (transport && transport.responseText){
+        if (transport && transport.responseText) {
             response = JSON.parse(transport.responseText);
         }
         //the response is extected to contain the update HTMl for the payment step
@@ -97,4 +129,4 @@ var MethodStep = {
             checkout.setResponse(response);
         }
     }
-}
+};

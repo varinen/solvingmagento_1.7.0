@@ -1,4 +1,15 @@
-var Shipping = Class.create();
+var
+    //Prototype objects
+    $,
+    $$,
+    Class,
+    Event,
+    Element,
+    Form,
+    //external objects
+    shippingRegionUpdater,
+    //Creae the constructor
+    Shipping = Class.create();
 
 Shipping.prototype = {
     stepContainer: null,
@@ -8,7 +19,9 @@ Shipping.prototype = {
      *
      * @param id step id
      */
-    initialize: function(id) {
+    initialize: function (id) {
+        'use strict';
+
         this.stepContainer = $('checkout-step-' + id);
         if (!this.stepContainer) {
             return;
@@ -17,7 +30,7 @@ Shipping.prototype = {
          * Observe the customer choice regarding an existing address
          */
         $$('input[name="shipping_address_id"]').each(
-            function(element) {
+            function (element) {
                 Event.observe(
                     $(element),
                     'change',
@@ -31,7 +44,7 @@ Shipping.prototype = {
          * when initializing the shipping step
          */
         $$('input[name="billing[use_for_shipping]"]').each(
-            function(element) {
+            function (element) {
                 if (!!element.checked) {
                     $('shipping:same_as_billing').checked = !!element.value;
                 }
@@ -42,7 +55,7 @@ Shipping.prototype = {
          * Start observing the change of the "use billing address for shipping" option
          */
         $$('input[name="billing[use_for_shipping]"]').each(
-            function(element) {
+            function (element) {
                 Event.observe(
                     $(element),
                     'change',
@@ -58,7 +71,7 @@ Shipping.prototype = {
         Event.observe(
             $('shipping:same_as_billing'),
             'change',
-            function(event) {
+            function (event) {
                 if (Event.element(event).checked) {
                     this.setSameAsBilling(true);
                     $('billing:use_for_shipping_yes').checked = true;
@@ -72,15 +85,16 @@ Shipping.prototype = {
      * Toggles the new shipping address form display depending on customer's
      * decision to use an existing address or to enter a new one.
      * Works for logged in customers only
-     *
-     * @param event
      */
-    newShippingAddress: function(event) {
+    newShippingAddress: function () {
+        'use strict';
+
         var value;
+
         $$('input[name="shipping_address_id"]').each(
-            function(element) {
+            function (element) {
                 if (!!element.checked) {
-                    value = !!parseInt(element.value);
+                    value = !!parseInt(element.value, 10);
                     var billingId = element.id.replace(/^shipping/, 'billing');
                     if (!$(billingId).checked) {
                         $('shipping:same_as_billing').checked     = false;
@@ -104,15 +118,16 @@ Shipping.prototype = {
      * Copies the content of the billing address form into the shipping form if yes.
      *
      * Resets the shipping address form if no.
-     *
-     * @param event
      */
-    toggleSameAsBilling: function(event) {
+    toggleSameAsBilling: function () {
+        'use strict';
+
         var value = false;
+
         $$('input[name="billing[use_for_shipping]"]').each(
-            function(element) {
+            function (element) {
                 if (!!element.checked) {
-                    value = !!parseInt(element.value);
+                    value = !!parseInt(element.value, 10);
                 }
             }
         );
@@ -123,12 +138,8 @@ Shipping.prototype = {
         if (value) {
             this.setSameAsBilling(true);
         } else {
-            /**
-             * @todo Is really necessary?
-             */
             this.resetAddress();
         }
-
     },
 
     /**
@@ -136,34 +147,32 @@ Shipping.prototype = {
      *
      * @param flag flag to copy the data or not
      */
-    setSameAsBilling: function(flag) {
-        if (flag) {
-            var arrElements = Form.getElements($('co-shipping-form'));
-            for (var elemIndex in arrElements) {
-                if (arrElements[elemIndex].id) {
-                    var billingId = arrElements[elemIndex].id.replace(/^shipping/, 'billing');
-                    if ((billingId === 'billing:region_id') && (shippingRegionUpdater)) {
-                        shippingRegionUpdater.update();
-                    }
+    setSameAsBilling: function (flag) {
+        'use strict';
 
-                    arrElements[elemIndex].value = ($(billingId) && $(billingId).value) ? $(billingId).value : '';
-                    if ($(billingId) && !!$(billingId).checked) {
-                        arrElements[elemIndex].checked = true;
-                    }
-                    /*
-                     if ($(billingId)
-                     && ($(billingId).name == 'billing_address_id')
-                     && (!$(billingId).value)
-                     && ($(billingId).checked)
-                     ) {
-                     this.newShippingAddress();
-                     }
-                     */
-                    if ($(billingId)
-                        && ($(billingId).name == 'billing_address_id')
-                        && (!$(billingId).value)
-                        ) {
-                        this.newShippingAddress();
+        var arrElements,
+            elemIndex,
+            billingId;
+
+        if (flag) {
+            arrElements = Form.getElements($('co-shipping-form'));
+            for (elemIndex in arrElements) {
+                if (arrElements.hasOwnProperty(elemIndex)) {
+                    if (arrElements[elemIndex].id) {
+                        billingId = arrElements[elemIndex].id.replace(/^shipping/, 'billing');
+                        if ((billingId === 'billing:region_id') && shippingRegionUpdater) {
+                            shippingRegionUpdater.update();
+                        }
+                        arrElements[elemIndex].value = ($(billingId) && $(billingId).value) ? $(billingId).value : '';
+                        if ($(billingId) && !!$(billingId).checked) {
+                            arrElements[elemIndex].checked = true;
+                        }
+                        if ($(billingId)
+                                && ($(billingId).name === 'billing_address_id')
+                                && (!$(billingId).value)
+                                ) {
+                            this.newShippingAddress();
+                        }
                     }
                 }
             }
@@ -175,16 +184,22 @@ Shipping.prototype = {
     /**
      * Sets shipping form input values to nothing (except shipping_address_id radio options)
      */
-    resetAddress: function() {
-        var arrElements = Form.getElements($('co-shipping-form'));
-        for (var elemIndex in arrElements) {
-            if (!!arrElements[elemIndex].value) {
-                if ((arrElements[elemIndex].name !== 'shipping_address_id')
-                    && (arrElements[elemIndex].name !== 'shipping[address_id]')
-                    ) {
-                    arrElements[elemIndex].value = '';
+    resetAddress: function () {
+        'use strict';
+        var arrElements,
+            elemIndex;
+
+        arrElements = Form.getElements($('co-shipping-form'));
+        for (elemIndex in arrElements) {
+            if (arrElements.hasOwnProperty(elemIndex)) {
+                if (!!arrElements[elemIndex].value) {
+                    if ((arrElements[elemIndex].name !== 'shipping_address_id')
+                            && (arrElements[elemIndex].name !== 'shipping[address_id]')
+                            ) {
+                        arrElements[elemIndex].value = '';
+                    }
                 }
             }
         }
     }
-}
+};

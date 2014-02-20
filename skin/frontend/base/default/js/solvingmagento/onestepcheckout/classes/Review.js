@@ -1,11 +1,28 @@
-var Review = Class.create();
+var
+    window,
+    //Prototype objects
+    $,
+    $$,
+    Ajax,
+    Class,
+    Event,
+    Form,
+//external object
+    MethodStep,
+    checkout,
+//create constructor
+    Review = Class.create(),
+    property;
+
 
 Review.prototype = {
     readyToSave: false,
     getStepUpdateUrl: null,
     stepId: 'review',
     forms: [],
-    initialize: function(id, getStepUpdateUrl, submitOrderUrl, successUrl) {
+    initialize: function (id, getStepUpdateUrl, submitOrderUrl, successUrl) {
+        'use strict';
+
         this.stepContainer    = $('checkout-step-' + id);
         this.getStepUpdateUrl = getStepUpdateUrl || '/checkout/onestep/updateOrderReview';
         this.submitOrderUrl   = submitOrderUrl  || '/checkout/onestep/submitOrder';
@@ -28,12 +45,18 @@ Review.prototype = {
         Event.observe($('order_submit_button'), 'click', this.submit.bindAsEventListener(this));
     },
 
-    submit: function(event) {
-        var parameters = '',
+    /**
+     * Submits all checkout forms to update the review step or to place an order
+     */
+    submit: function () {
+        'use strict';
+
+        var checkoutMethod,
+            request,
+            parameters = '',
             postUrl   = this.getStepUpdateUrl,
             onSuccess = this.onUpdate,
             i;
-
 
         /**
          * Submit order instead of upating only
@@ -54,18 +77,18 @@ Review.prototype = {
                 }
             }
 
-            if (login && login.stepContainer) {
-                var checkoutMethod = 'register';
-                $$('input[name="checkout_method"]').each(function(element) {
-                   if ($(element).checked) {
-                       checkoutMethod = $(element).value;
-                   }
+            if (checkout.steps.login && checkout.steps.stepContainer) {
+                checkoutMethod = 'register';
+                $$('input[name="checkout_method"]').each(function (element) {
+                    if ($(element).checked) {
+                        checkoutMethod = $(element).value;
+                    }
                 });
                 parameters += '&checkout_method=' + checkoutMethod;
             }
             parameters = parameters.substr(1);
 
-            var request = new Ajax.Request(
+            request = new Ajax.Request(
                 postUrl,
                 {
                     method:     'post',
@@ -75,12 +98,25 @@ Review.prototype = {
                     parameters: parameters
                 }
             );
+            //placate jslint
+            if (request.nothing === undefined) {
+                request.nothing = 0;
+            }
         }
     },
 
-    updateReview: function(event, noValidation) {
+    /**
+     * Updates the review step
+     *
+     * @param event
+     * @param noValidation
+     */
+    updateReview: function (event, noValidation) {
+        'use strict';
+
         var parameters = '',
             i,
+            request,
             valid = false;
 
         noValidation = !!noValidation;
@@ -98,7 +134,7 @@ Review.prototype = {
 
             parameters = parameters.substr(1);
 
-            var request = new Ajax.Request(
+            request = new Ajax.Request(
                 this.getStepUpdateUrl,
                 {
                     method:     'post',
@@ -109,6 +145,14 @@ Review.prototype = {
                 }
             );
         }
+
+        //placate jslint
+        if (event.nothing === undefined) {
+            event.nothing = 0;
+        }
+        if (request.nothing === undefined) {
+            request.nothing = 0;
+        }
     },
 
     /**
@@ -118,9 +162,12 @@ Review.prototype = {
      *
      * @returns {boolean}
      */
-    reviewUpdated: function(transport){
+    reviewUpdated: function (transport) {
+        'use strict';
+
         var response = {};
-        if (transport && transport.responseText){
+
+        if (transport && transport.responseText) {
             response = JSON.parse(transport.responseText);
         }
 
@@ -146,6 +193,8 @@ Review.prototype = {
      * Shows the loging step loader
      */
     startLoader: function () {
+        'use strict';
+
         $('order_submit_button').disable();
         $('review-submit-please-wait').show();
         if (checkout) {
@@ -159,6 +208,8 @@ Review.prototype = {
      * Hides the login step loader
      */
     stopLoader: function () {
+        'use strict';
+
         $('order_submit_button').enable();
         $('review-submit-please-wait').hide();
 
@@ -173,14 +224,17 @@ Review.prototype = {
      *
      * @param transport
      */
-    orderSubmitAfter: function(transport){
+    orderSubmitAfter: function (transport) {
+        'use strict';
+
         var response = {};
-        if (transport && transport.responseText){
+
+        if (transport && transport.responseText) {
             response = JSON.parse(transport.responseText);
         }
         if (response.success) {
             this.isSuccess = true;
-            window.location=this.successUrl;
+            window.location = this.successUrl;
         } else {
             this.stopLoader();
             this.readyToSave = false;
@@ -199,9 +253,10 @@ Review.prototype = {
 /**
  * Extend *_method step object prototypes with shared properties
  */
-for (var property in MethodStep) {
-    if (!Review.prototype[property]) {
-        Review.prototype[property] = MethodStep[property];
+for (property in MethodStep) {
+    if (MethodStep.hasOwnProperty(property)) {
+        if (!Review.prototype[property]) {
+            Review.prototype[property] = MethodStep[property];
+        }
     }
 }
-

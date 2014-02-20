@@ -1,4 +1,11 @@
-var Billing = Class.create();
+var
+    //Prototype objects
+    $,
+    $$,
+    Event,
+    Element,
+    Class,
+    Billing = Class.create();
 
 Billing.prototype = {
     stepContainer: null,
@@ -8,14 +15,16 @@ Billing.prototype = {
      *
      * @param id step id
      */
-    initialize: function(id) {
+    initialize: function (id) {
+        'use strict';
+
         this.stepContainer = $('checkout-step-' + id);
 
         /**
          * Observe the customer choice regarding an existing address
          */
         $$('input[name="billing_address_id"]').each(
-            function(element) {
+            function (element) {
                 Event.observe(
                     $(element),
                     'change',
@@ -28,7 +37,7 @@ Billing.prototype = {
          * Observe changes in the checkout method,
          */
         $$('input[name="checkout_method"]').each(
-            function(element) {
+            function (element) {
                 Event.observe(
                     $(element),
                     'change',
@@ -48,15 +57,16 @@ Billing.prototype = {
      * Toggles the new billing address form display depending on customer's
      * decision to use an existing address or to enter a new one.
      * Works for logged in customers only
-     *
-     * @param event
      */
-    newBillingAddress: function(event) {
+    newBillingAddress: function () {
+        'use strict';
+
         var value;
+
         $$('input[name="billing_address_id"]').each(
-            function(element) {
+            function (element) {
                 if (!!element.checked) {
-                    value = !!parseInt(element.value);
+                    value = !!parseInt(element.value, 10);
                 }
             }
         );
@@ -67,13 +77,12 @@ Billing.prototype = {
         }
     },
 
-
     /**
      * Shows or hides the password field depending on the chosen checkout method
-     *
-     * @param event
      */
-    togglePassword: function(event) {
+    togglePassword: function () {
+        'use strict';
+
         if (!$('register-customer-password')) {
             return;
         }
@@ -86,5 +95,4 @@ Billing.prototype = {
 
         Element.hide('register-customer-password');
     }
-
-}
+};

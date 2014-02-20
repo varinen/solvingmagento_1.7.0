@@ -1,4 +1,10 @@
 var Checkout,
+    Login,
+    Billing,
+    Shipping,
+    ShippingMethod,
+    Payment,
+    Review,
     switchToPaymentMethod,
     currentPaymentMethod,
     login          = new Login('login'),
@@ -24,7 +30,7 @@ if (currentPaymentMethod) {
 payment.init();
 
 if (switchToPaymentMethod) {
-    payment.switchMethod(switchToPamentMethod);
+    payment.switchMethod(switchToPaymentMethod);
 }
 
 review.updateReview(this, true);

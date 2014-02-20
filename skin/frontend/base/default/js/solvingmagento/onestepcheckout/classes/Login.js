@@ -1,9 +1,15 @@
-/**
- * Login step class
- *
- * @type {*}
- */
-var Login = Class.create();
+var
+    //Prototype objects
+    $,
+    $$,
+    Event,
+    Element,
+    Class,
+    //external object
+    MethodStep,
+    //create constructor
+    Login = Class.create(),
+    property;
 
 Login.prototype = {
     stepContainer: null,
@@ -13,7 +19,9 @@ Login.prototype = {
      *
      * @param id step id
      */
-    initialize: function(id, saveMethodUrl) {
+    initialize: function (id, saveMethodUrl) {
+        'use strict';
+
         this.saveMethodsUrl = saveMethodUrl || '/checkout/onestep/saveMethod';
         this.onSave         = this.methodSaved.bindAsEventListener(this);
         this.stepContainer  = $('checkout-step-' + id);
@@ -22,7 +30,7 @@ Login.prototype = {
          * Observe the customer choice regarding an existing address
          */
         $$('input[name="checkout_method"]').each(
-            function(element) {
+            function (element) {
                 Event.observe(
                     $(element),
                     'click',
@@ -37,7 +45,9 @@ Login.prototype = {
      *
      * @param event
      */
-    saveMethod: function(event) {
+    saveMethod: function (event) {
+        'use strict';
+
         var value = Event.element(event).value;
         this.postData(
             this.saveMethodsUrl,
@@ -47,12 +57,13 @@ Login.prototype = {
     }
 };
 
-
 /**
  * Extend *_method step object prototypes with shared properties
  */
-for (var property in MethodStep) {
-    if (!Login.prototype[property]) {
-        Login.prototype[property] = MethodStep[property];
+for (property in MethodStep) {
+    if (MethodStep.hasOwnProperty(property)) {
+        if (!Login.prototype[property]) {
+            Login.prototype[property] = MethodStep[property];
+        }
     }
 }

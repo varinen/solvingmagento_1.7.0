@@ -1,4 +1,20 @@
-var Payment = Class.create();
+var
+    //Prototype objects
+    $,
+    $$,
+    $H,
+    Ajax,
+    Class,
+    Event,
+    Element,
+    Form,
+    Validation,
+    //external object
+    MethodStep,
+    checkout,
+    //create constructor
+    Payment = Class.create(),
+    property;
 
 Payment.prototype = {
     beforeInitFunc:       $H({}),
@@ -10,16 +26,18 @@ Payment.prototype = {
     stepContainer:        null,
     currentMethod:        null,
     form:                 null,
-    getPaymentMethodsUrl: null,
     stepId: 'payment_method',
 
     /**
      * Required initialization
      *
      * @param id
+     * @param getPaymentMethodsUrl
      * @param saveAddressesUrl
      */
-    initialize: function(id, getPaymentMethodsUrl, savePaymentMethodUrl) {
+    initialize: function (id, getPaymentMethodsUrl, savePaymentMethodUrl) {
+        'use strict';
+
         this.stepContainer        = $('checkout-step-' + id);
         this.form                 = 'co-payment-form';
         this.getPaymentMethodsUrl = getPaymentMethodsUrl || '/checkout/onestep/updatePaymentMethods';
@@ -40,12 +58,18 @@ Payment.prototype = {
 
     },
 
-    getMethods: function() {
-        var parameters = {},
+    /**
+     * Fetches an update of the available payent options
+     */
+    getMethods: function () {
+        'use strict';
+
+        var request,
+            parameters = {},
             valid      = false;
 
-        if ($('shipping:same_as_billing').checked && shipping) {
-            shipping.setSameAsBilling(true);
+        if ($('shipping:same_as_billing').checked && checkout.steps.shipping) {
+            checkout.steps.shipping.setSameAsBilling(true);
         }
 
         /**
@@ -64,7 +88,7 @@ Payment.prototype = {
                 '&' + Form.serialize('co-shipping-form') +
                 '&' + Form.serialize('co-shipping-method-form');
 
-            var request = new Ajax.Request(
+            request = new Ajax.Request(
                 this.getPaymentMethodsUrl,
                 {
                     method:     'post',
@@ -75,15 +99,24 @@ Payment.prototype = {
                 }
             );
         }
+        //placate jslint
+        if (request.nothing === undefined) {
+            request.nothing = 0;
+        }
     },
 
-    saveMethod: function() {
+    /**
+     * Saves the selected payment option
+     */
+    saveMethod: function () {
+        'use strict';
+
         var parameters = Form.serialize('co-payment-method-form');
         if (checkout
-            && checkout.validateCheckoutSteps(
-            ['CheckoutMethod', 'BillingAddress', 'ShippingAddress', 'ShippingMethod', 'PaymentMethod']
-        )
-            ) {
+                && checkout.validateCheckoutSteps(
+                    ['CheckoutMethod', 'BillingAddress', 'ShippingAddress', 'ShippingMethod', 'PaymentMethod']
+                )
+                ) {
             this.postData(
                 this.savePaymentMethodUrl,
                 parameters,
@@ -97,9 +130,14 @@ Payment.prototype = {
      *
      * @param transport response from the controller
      */
-    methodSaved: function(transport){
-        var response = {};
-        if (transport && transport.responseText){
+    methodSaved: function (transport) {
+        'use strict';
+
+        var i,
+            fields,
+            response = {};
+
+        if (transport && transport.responseText) {
             response = JSON.parse(transport.responseText);
         }
 
@@ -108,11 +146,10 @@ Payment.prototype = {
          */
         if (response.error) {
             if (response.fields) {
-                var fields = response.fields.split(',');
-                for (var i=0;i<fields.length;i++) {
-                    var field = null;
-                    if (field = $(fields[i])) {
-                        Validation.ajaxError(field, response.error);
+                fields = response.fields.split(',');
+                for (i = 0; i < fields.length; i += 1) {
+                    if (!$(fields[i])) {
+                        Validation.ajaxError(fields[i], response.error);
                     }
                 }
                 return;
@@ -134,16 +171,20 @@ Payment.prototype = {
      * @param code function name
      * @param func function itself
      */
-    addBeforeInitFunction : function(code, func) {
+    addBeforeInitFunction : function (code, func) {
+        'use strict';
+
         this.beforeInitFunc.set(code, func);
     },
 
     /**
      * Invokes the before init functions
      */
-    beforeInit : function() {
+    beforeInit : function () {
+        'use strict';
+
         (this.beforeInitFunc).each(
-            function(init) {
+            function (init) {
                 (init.value)();
             }
         );
@@ -153,11 +194,15 @@ Payment.prototype = {
      * Initializes the payment method selection
      */
     init : function () {
+        'use strict';
+
         this.beforeInit();
 
-        var elements = Form.getElements(this.form), method = null;
+        var i,
+            elements = Form.getElements(this.form),
+            method = null;
 
-        for (var i = 0; i < elements.length; i++) {
+        for (i = 0; i < elements.length; i += 1) {
             if (elements[i].name === 'payment[method]') {
                 if (elements[i].checked) {
                     method = elements[i].value;
@@ -165,7 +210,7 @@ Payment.prototype = {
             } else {
                 elements[i].disabled = true;
             }
-            elements[i].setAttribute('autocomplete','off');
+            elements[i].setAttribute('autocomplete', 'off');
         }
         if (method) {
             this.switchMethod(method);
@@ -179,16 +224,20 @@ Payment.prototype = {
      * @param code function name
      * @param func function itself
      */
-    addAfterInitFunction : function(code, func) {
+    addAfterInitFunction : function (code, func) {
+        'use strict';
+
         this.afterInitFunc.set(code, func);
     },
 
     /**
      * Invokes the after init functions
      */
-    afterInit : function() {
+    afterInit : function () {
+        'use strict';
+
         (this.afterInitFunc).each(
-            function(init) {
+            function (init) {
                 (init.value)();
             }
         );
@@ -199,17 +248,19 @@ Payment.prototype = {
      *
      * @param method method name
      */
-    switchMethod: function(method) {
-        if (this.currentMethod && $('payment_form_'+this.currentMethod)) {
+    switchMethod: function (method) {
+        'use strict';
+
+        if (this.currentMethod && $('payment_form_' + this.currentMethod)) {
             this.changeVisible(this.currentMethod, true);
-            $('payment_form_'+this.currentMethod).fire(
+            $('payment_form_' + this.currentMethod).fire(
                 'payment-method:switched-off',
                 {method_code : this.currentMethod}
             );
         }
-        if ($('payment_form_'+method)) {
+        if ($('payment_form_' + method)) {
             this.changeVisible(method, false);
-            $('payment_form_'+method).fire('payment-method:switched', {method_code : method});
+            $('payment_form_' + method).fire('payment-method:switched', {method_code : method});
         } else {
             //Event fix for payment methods without form like "Check / Money order"
             document.body.fire('payment-method:switched', {method_code : method});
@@ -226,13 +277,16 @@ Payment.prototype = {
      * @param method method name
      * @param mode   toggle flag
      */
-    changeVisible: function(method, mode) {
-        var block = 'payment_form_' + method;
-        [block + '_before', block, block + '_after'].each(function(el) {
+    changeVisible: function (method, mode) {
+        'use strict';
+
+        var element,
+            block = 'payment_form_' + method;
+        [block + '_before', block, block + '_after'].each(function (el) {
             element = $(el);
             if (element) {
-                element.style.display = (mode) ? 'none' : '';
-                element.select('input', 'select', 'textarea', 'button').each(function(field) {
+                element.style.display = mode ? 'none' : '';
+                element.select('input', 'select', 'textarea', 'button').each(function (field) {
                     field.disabled = mode;
                 });
             }
@@ -245,7 +299,9 @@ Payment.prototype = {
      * @param code function name
      * @param func function itself
      */
-    addBeforeValidateFunction : function(code, func) {
+    addBeforeValidateFunction : function (code, func) {
+        'use strict';
+
         this.beforeValidateFunc.set(code, func);
     },
 
@@ -254,12 +310,15 @@ Payment.prototype = {
      *
      * @returns {boolean}
      */
-    beforeValidate : function() {
-        var validateResult = true;
-        var hasValidation = false;
-        (this.beforeValidateFunc).each(function(validate){
+    beforeValidate : function () {
+        'use strict';
+
+        var validateResult = true,
+            hasValidation  = false;
+
+        (this.beforeValidateFunc).each(function (validate) {
             hasValidation = true;
-            if ((validate.value)() == false) {
+            if (!((validate.value)())) {
                 validateResult = false;
             }
         }.bind(this));
@@ -269,18 +328,16 @@ Payment.prototype = {
         return validateResult;
     },
 
-    methodSaved: function() {
-
-    },
-
     /**
      * Adds validation advice DOM elements to radio buttons
      */
-    addValidationAdvice: function() {
+    addValidationAdvice: function () {
+        'use strict';
+
         var advice, clone;
         //destroy already existing elements
         $$('dt div.advice-required-entry-' + this.stepId).each(
-            function(element) {
+            function (element) {
                 Element.remove(element);
             }
         );
@@ -289,23 +346,23 @@ Payment.prototype = {
             if (advice) {
 
                 $$('input[name="payment[method]"]').each(
-                    function(element) {
+                    function (element) {
                         clone = Element.clone(advice, true);
                         $(element).up().appendChild(clone);
                     }
                 );
             }
         }
-
     }
 };
-
 
 /**
  * Extend *_method step object prototypes with shared properties
  */
-for (var property in MethodStep) {
-    if (!Payment.prototype[property]) {
-        Payment.prototype[property] = MethodStep[property];
+for (property in MethodStep) {
+    if (MethodStep.hasOwnProperty(property)) {
+        if (!Payment.prototype[property]) {
+            Payment.prototype[property] = MethodStep[property];
+        }
     }
 }
