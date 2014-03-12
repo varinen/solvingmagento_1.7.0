@@ -28,38 +28,38 @@
     $oneMethod = count($methods) <= 1;
     ?>
     <?php
-    foreach ($methods as $_method):
-        $_code = $_method->getCode();
+    foreach ($methods as $method):
+        $code = $method->getCode();
         ?>
         <dt>
             <?php if(!$oneMethod): ?>
                 <input
-                    id="p_method_<?php echo $_code ?>"
-                    value="<?php echo $_code ?>"
+                    id="p_method_<?php echo $code ?>"
+                    value="<?php echo $code ?>"
                     type="radio"
                     name="payment[method]"
-                    title="<?php echo $this->htmlEscape($_method->getTitle()) ?>"
-                    onclick="payment.switchMethod('<?php echo $_code ?>')"
-                    <?php if($this->getSelectedMethodCode()==$_code): ?> checked="checked"<?php endif; ?>
+                    title="<?php echo $this->htmlEscape($method->getTitle()) ?>"
+                    onclick="payment.switchMethod('<?php echo $code ?>')"
+                    <?php if($this->getSelectedMethodCode()==$code): ?> checked="checked"<?php endif; ?>
                     class="radio" />
             <?php else: ?>
                 <span class="no-display">
                     <input
-                        id="p_method_<?php echo $_code ?>"
-                        value="<?php echo $_code ?>"
+                        id="p_method_<?php echo $code ?>"
+                        value="<?php echo $code ?>"
                         type="radio"
                         name="payment[method]"
                         checked="checked"
                         class="radio" />
                 </span>
-                <?php $oneMethod = $_code; ?>
+                <?php $oneMethod = $code; ?>
             <?php endif; ?>
-            <label for="p_method_<?php echo $_code ?>">
-                <?php echo $this->escapeHtml($this->getMethodTitle($_method)) . ' '
-                    . $this->getMethodLabelAfterHtml($_method) ?>
+            <label for="p_method_<?php echo $code ?>">
+                <?php echo $this->escapeHtml($this->getMethodTitle($method)) . ' '
+                    . $this->getMethodLabelAfterHtml($method) ?>
             </label>
         </dt>
-        <?php if ($html = $this->getPaymentMethodFormHtml($_method)): ?>
+        <?php if ($html = $this->getPaymentMethodFormHtml($method)): ?>
         <dd>
             <?php echo $html; ?>
         </dd>
