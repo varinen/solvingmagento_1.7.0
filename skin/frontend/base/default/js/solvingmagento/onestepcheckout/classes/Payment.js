@@ -100,7 +100,7 @@ Payment.prototype = {
             );
         }
         //placate jslint
-        if (request.nothing === undefined) {
+        if (typeof request.nothing === 'undefined') {
             request.nothing = 0;
         }
     },
@@ -112,7 +112,8 @@ Payment.prototype = {
         'use strict';
 
         var parameters = Form.serialize('co-payment-method-form');
-        if (checkout
+        if (this.beforeValidate()
+                && checkout
                 && checkout.validateCheckoutSteps(
                     ['CheckoutMethod', 'BillingAddress', 'ShippingAddress', 'ShippingMethod', 'PaymentMethod']
                 )
@@ -313,18 +314,13 @@ Payment.prototype = {
     beforeValidate : function () {
         'use strict';
 
-        var validateResult = true,
-            hasValidation  = false;
+        var validateResult = true;
 
         (this.beforeValidateFunc).each(function (validate) {
-            hasValidation = true;
             if (!((validate.value)())) {
                 validateResult = false;
             }
         }.bind(this));
-        if (!hasValidation) {
-            validateResult = false;
-        }
         return validateResult;
     },
 
