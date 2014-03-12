@@ -56,7 +56,6 @@ class Solvingmagento_OneStepCheckout_Model_Type_Onestep extends Mage_Checkout_Mo
      */
     public function initCheckout()
     {
-        $checkout        = $this->getCheckout();
         $customerSession = $this->getCustomerSession();
        /**
          * Reset multishipping flag before any manipulations with quote address
@@ -285,12 +284,6 @@ class Solvingmagento_OneStepCheckout_Model_Type_Onestep extends Mage_Checkout_Mo
             //Recollect Shipping rates for shipping methods
             $this->getQuote()->getShippingAddress()->setCollectShippingRates(true);
         }
-
-        $this->getCheckout()
-            ->setStepData('billing', 'allow', true)
-            ->setStepData('billing', 'complete', true)
-            ->setStepData('shipping', 'allow', true);
-
         return array();
     }
 
