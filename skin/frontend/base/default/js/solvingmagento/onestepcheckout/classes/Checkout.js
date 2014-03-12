@@ -16,7 +16,6 @@ var failureUrl = '/checkout/cart/',
     Checkout   = Class.create();
 
 Checkout.prototype = {
-    checkoutContainer: null,
     columnLeft: null,
     columnCenter: null,
     columnRight: null,
@@ -42,13 +41,13 @@ Checkout.prototype = {
 
         this.moveTo(this.steps.login, 'up');
         this.moveTo(this.steps.billing, 'left');
-        this.moveTo(this.steps.shipping, 'center');
         this.moveTo(this.steps.review, 'bottom');
 
         if (this.steps.shipping
                 && this.steps.shipping.stepContainer
                 && this.steps.shipping.stepContainer.visible()
                 ) {
+            this.moveTo(this.steps.shipping, 'center');
             this.moveTo(this.steps.shipping_method, 'right');
             this.moveTo(this.steps.payment, 'right');
         } else {
@@ -241,6 +240,10 @@ Checkout.prototype = {
 
         var valid     = true,
             validator = new Validation('co-payment-form');
+
+        if (!payment || !payment.beforeValidate()) {
+            return false;
+        }
 
         $$('dt div.advice-required-entry-payment_method').each(
             function (element) {
