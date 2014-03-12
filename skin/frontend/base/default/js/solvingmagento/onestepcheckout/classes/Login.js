@@ -27,7 +27,7 @@ Login.prototype = {
         this.stepContainer  = $('checkout-step-' + id);
 
         /**
-         * Observe the customer choice regarding an existing address
+         * Observe the customer choice of the checkout method
          */
         $$('input[name="checkout_method"]').each(
             function (element) {
