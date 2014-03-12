@@ -247,7 +247,7 @@ class Solvingmagento_OneStepCheckout_OnestepController extends Mage_Checkout_One
     {
         if (!Mage::helper('slvmto_onestepc')->oneStepCheckoutEnabled()) {
             Mage::getSingleton('checkout/session')
-                ->addError($this->__('One Step checkout is disabled.'));
+                ->addError($this->__('The onestep checkout is disabled.'));
             $this->_redirect('checkout/cart');
             return;
         }
