@@ -69,18 +69,6 @@ class Solvingmagento_OneStepCheckout_Block_Onestep_Shipping extends Mage_Checkou
             $html .= PHP_EOL . '<div style="height: 1px; clear:both"></div></div>' . PHP_EOL;
 
             return $html;
-
-            $select = $this->getLayout()->createBlock('core/html_select')
-                ->setName($type.'_address_id')
-                ->setId($type.'-address-select')
-                ->setClass('address-select')
-                ->setExtraParams('onchange="'.$type.'.newAddress(!this.value)"')
-                ->setValue($addressId)
-                ->setOptions($options);
-
-            $select->addOption('', Mage::helper('checkout')->__('New Address'));
-
-            return $select->getHtml();
         }
         return '';
     }
