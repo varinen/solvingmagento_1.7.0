@@ -41,7 +41,6 @@ var MethodStep = {
                 );
             }
         }
-
     },
 
     /**
@@ -95,7 +94,7 @@ var MethodStep = {
             }
         );
         //placate jslint
-        if (request.nothing === undefined) {
+        if (typeof request.nothing === 'undefined') {
             request.nothing = 0;
         }
     },
@@ -105,7 +104,7 @@ var MethodStep = {
      */
     methodSaved: function () {
         'use strict';
-        if (this.nothing === undefined) {
+        if (typeof this.nothing === 'undefined') {
             this.nothing = 0;
         }
     },
