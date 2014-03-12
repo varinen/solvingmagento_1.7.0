@@ -99,7 +99,7 @@ Review.prototype = {
                 }
             );
             //placate jslint
-            if (request.nothing === undefined) {
+            if (typeof request.nothing === 'undefined') {
                 request.nothing = 0;
             }
         }
@@ -144,14 +144,15 @@ Review.prototype = {
                     parameters: parameters
                 }
             );
+
+            if (typeof request.nothing === 'undefined') {
+                request.nothing = 0;
+            }
         }
 
         //placate jslint
-        if (event.nothing === undefined) {
+        if (typeof event.nothing === 'undefined') {
             event.nothing = 0;
-        }
-        if (request.nothing === undefined) {
-            request.nothing = 0;
         }
     },
 
