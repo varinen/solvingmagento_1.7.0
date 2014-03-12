@@ -141,30 +141,9 @@ ShippingMethod.prototype = {
                 }
             );
             //placate jslint
-            if (request.nothing === undefined) {
+            if (typeof request.nothing === 'undefined') {
                 request.nothing = 0;
             }
-        }
-    },
-
-    /**
-     * Updates the method step with html represeting a selection of available methods
-     *
-     * @param transport
-     *
-     * @returns {boolean}
-     */
-    updateMethods: function (transport) {
-        'use strict';
-
-        var response = {};
-
-        if (transport && transport.responseText) {
-            response = JSON.parse(transport.responseText);
-        }
-        //the response is extected to contain the update HTMl for the payment step
-        if (checkout) {
-            checkout.setResponse(response);
         }
     },
 
