@@ -26,6 +26,12 @@
  */
 class Solvingmagento_GroupedRedirect_Model_Observer
 {
+    /**
+     * Listens to the catalog_controller_product_init_after event
+     * and redirects to the parent grouped product
+     *
+     * @param Varien_Event_Observer $observer observer object
+     */
     public function redirectGrouped(Varien_Event_Observer $observer)
     {
         $product = $observer->getEvent()->getProduct();
