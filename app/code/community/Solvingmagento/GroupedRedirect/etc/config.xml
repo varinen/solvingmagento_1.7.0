@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+* Solvingmagento_GroupedRedirect configuration
+*
+* @category Solvingmagento
+* @package Solvingmagento_GroupedRedirect
+* @author Oleg Ishenko <oleg.ishenko@solvingmagento.com>
+* @copyright 2014 Oleg Ishenko
+* @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+* @version GIT: <0.1.0>
+* @link http://www.solvingmagento.com/
+*
+*/
+-->
+<config>
+    <modules>
+        <Solvingmagento_GroupedRedirect>
+            <version>0.1.0</version>
+        </Solvingmagento_GroupedRedirect>
+    </modules>
+    <global>
+        <models>
+            <solvingmagento_groupedredirect>
+                <class>Solvingmagento_GroupedRedirect_Model</class>
+            </solvingmagento_groupedredirect>
+        </models>
+        <events>
+            <catalog_controller_product_init_after>
+                <observers>
+                    <solvingmagento_groupedredirect>
+                        <class>solvingmagento_groupedredirect/observer</class>
+                        <method>redirectGrouped</method>
+                    </solvingmagento_groupedredirect>
+                </observers>
+            </catalog_controller_product_init_after>
+        </events>
+    </global>
+    <default>
+        <catalog>
+            <grouped_options>
+                <redirect_enabled>1</redirect_enabled>
+            </grouped_options>
+        </catalog>
+    </default>
+</config>

@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<!--
+/**
+* Solvingmagento_GroupedRedirect configuration
+*
+* @category Solvingmagento
+* @package Solvingmagento_GroupedRedirect
+* @author Oleg Ishenko <oleg.ishenko@solvingmagento.com>
+* @copyright 2014 Oleg Ishenko
+* @license http://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
+* @version GIT: <0.1.0>
+* @link http://www.solvingmagento.com/
+*
+*/
+-->
+<config>
+    <sections>
+        <catalog>
+            <groups>
+                <grouped_options translate="label">
+                    <label>Grouped Product Options</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>600</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <redirect_enabled translate="label">
+                            <label>Enable Grouped Redirect</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>6</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>Toggles redirecting of associated grouped products to the parent grouped product details page</comment>
+                        </redirect_enabled>
+                    </fields>
+                </grouped_options>
+            </groups>
+        </catalog>
+    </sections>
+</config>
